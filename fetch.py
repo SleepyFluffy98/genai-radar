@@ -343,6 +343,15 @@ def score_article(llm, article: dict, profile_text: str) -> "Article | None":
             raw = re.sub(r"^```[a-z]*\n?", "", raw)
             raw = re.sub(r"\n?```$", "", raw)
         data = json.loads(raw)
+
+        valid_categories = {"models", "tools", "implementation", "industry", "regulation", "tutorial"}
+        valid_domains    = {"general", "finance", "insurance", "hr", "data-science"}
+
+        raw_cat    = str(data.get("category", ""))
+        raw_domain = str(data.get("domain", ""))
+        category   = raw_cat    if raw_cat    in valid_categories else "industry"
+        domain     = raw_domain if raw_domain in valid_domains    else "general"
+
         return Article(
             title               = article["title"],
             url                 = article["url"],
@@ -351,8 +360,8 @@ def score_article(llm, article: dict, profile_text: str) -> "Article | None":
             reason              = str(data.get("reason", "")),
             summary             = str(data.get("summary", "")),
             actionable_insights = list(data.get("actionable_insights", [])),
-            category            = data.get("category", "industry"),
-            domain              = data.get("domain", "general"),
+            category            = category,
+            domain              = domain,
             worth_reading       = bool(data.get("worth_reading", False)),
         )
     except Exception as e:
