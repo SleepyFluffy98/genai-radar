@@ -308,63 +308,55 @@ def deduplicate(articles: list[dict]) -> list[dict]:
 
 # ── Scoring ───────────────────────────────────────────────────────────────────
 
-# Condensed profile used in the fallback scorer to keep the prompt short
-_FALLBACK_SYSTEM = (
-    "You are scoring news articles for a GenAI consultant in Germany who builds "
-    "agentic workflows, RAG systems, and multi-agent pipelines for enterprise clients "
-    "in finance, insurance, and HR. Tech stack: Azure OpenAI, LangGraph, Streamlit. "
-    "Score 7-10 for anything directly useful to their work. "
-    "Score 1-4 for consumer AI, crypto, generic opinion pieces, or US-only regulatory news."
-)
+_JSON_SCHEMA = """\
+Respond with a single JSON object — no markdown, no code fences, just raw JSON.
+Required fields:
+  "relevance_score": integer 1-10
+  "reason": one sentence — why this matters to the consultant specifically
+  "summary": 2-3 sentences — consultant-focused summary, skip generic context
+  "actionable_insights": array of 2-3 strings — concrete things to act on today
+  "category": one of: models | tools | implementation | industry | regulation | tutorial
+  "domain": one of: general | finance | insurance | hr | data-science
+  "worth_reading": boolean — true if score >= 7 and directly actionable
+"""
 
-def _build_prompt(profile_text: str, article: dict) -> str:
-    """Build the full scoring prompt from profile text and article fields."""
-    snippet_block = f"Excerpt: {article['snippet']}\n" if article.get("snippet") else ""
-    return (
+def score_article(llm, article: dict, profile_text: str) -> "Article | None":
+    """Score one article using a plain-JSON prompt — no function calling.
+
+    Asks the LLM to return raw JSON, then parses and validates it into an Article.
+    This is compatible with all GPT-4 versions and API versions.
+    """
+    snippet_block = f"Excerpt: {article['snippet'][:400]}\n" if article.get("snippet") else ""
+    prompt = (
         f"{profile_text}\n\n"
-        f"Score the following article:\n"
+        f"Article to score:\n"
         f"Title:  {article['title']}\n"
-        f"URL:    {article['url']}\n"
         f"Source: {article['source']}\n"
         f"{snippet_block}\n"
-        f"Return a structured assessment with summary and actionable_insights. "
-        f"worth_reading should be True when relevance_score meets the threshold."
+        f"{_JSON_SCHEMA}"
     )
-
-
-def score_article(scorer, llm, article: dict, profile_text: str) -> "Article | None":
-    """Score one article, with a simpler fallback prompt if structured output fails.
-
-    Primary attempt: full profile prompt + structured output.
-    Fallback: condensed system prompt — avoids token/schema overload on older models.
-    """
-    # ── Primary attempt ───────────────────────────────────────────────────────
     try:
-        result: Article = scorer.invoke(_build_prompt(profile_text, article))
-        result.url    = article["url"]
-        result.source = article["source"]
-        return result
-    except Exception as e:
-        print(f"  [RETRY]   Primary scoring failed for '{article['title'][:50]}': {type(e).__name__}: {e}")
-
-    # ── Fallback: shorter prompt, same structured output ──────────────────────
-    try:
-        snippet = article.get("snippet", "")[:300]
-        fallback_prompt = (
-            f"{_FALLBACK_SYSTEM}\n\n"
-            f"Title: {article['title']}\n"
-            f"Source: {article['source']}\n"
-            f"{'Excerpt: ' + snippet if snippet else ''}\n\n"
-            f"Score this article for the consultant described above."
+        response = llm.invoke(prompt)
+        raw = response.content.strip()
+        # Strip markdown code fences if the model added them anyway
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-z]*\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw)
+        data = json.loads(raw)
+        return Article(
+            title               = article["title"],
+            url                 = article["url"],
+            source              = article["source"],
+            relevance_score     = int(data["relevance_score"]),
+            reason              = str(data.get("reason", "")),
+            summary             = str(data.get("summary", "")),
+            actionable_insights = list(data.get("actionable_insights", [])),
+            category            = data.get("category", "industry"),
+            domain              = data.get("domain", "general"),
+            worth_reading       = bool(data.get("worth_reading", False)),
         )
-        result: Article = scorer.invoke(fallback_prompt)
-        result.url    = article["url"]
-        result.source = article["source"]
-        result.title  = article["title"]
-        print(f"  [OK]      Fallback succeeded for '{article['title'][:50]}'")
-        return result
     except Exception as e:
-        print(f"  [ERROR]   Fallback also failed for '{article['title'][:50]}': {type(e).__name__}: {e}")
+        print(f"  [ERROR] '{article['title'][:60]}': {type(e).__name__}: {e}")
         return None
 
 
@@ -414,17 +406,16 @@ def main() -> None:
     else:
         print("\nNo profile.json found — using built-in default profile.")
 
-    # Score each article with Azure OpenAI structured output
+    # Score each article — plain JSON prompt, no function calling
     print(f"Scoring {dedup_count} articles with Azure OpenAI...")
-    llm    = get_llm()
-    scorer = llm.with_structured_output(Article)
+    llm = get_llm()
 
     # Collect all scored results, not just passing ones — needed for the safety net
     all_scored: list[Article] = []
     passed: list[Article] = []
     for i, article in enumerate(unique_articles, 1):
         print(f"  [{i:>3}/{dedup_count}] {article['title'][:65]}...")
-        result = score_article(scorer, llm, article, profile_text)
+        result = score_article(llm, article, profile_text)
         if result:
             all_scored.append(result)
             # Filter on score alone — worth_reading can be overly conservative
