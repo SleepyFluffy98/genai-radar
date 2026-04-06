@@ -304,11 +304,16 @@ def render_article_card(
 # ── Subprocess fetch ──────────────────────────────────────────────────────────
 
 def run_fetch() -> tuple[bool, str]:
-    """Run fetch.py as a subprocess; return (success, combined stdout+stderr)."""
+    """Run fetch.py as a subprocess; return (success, combined stdout+stderr).
+    Uses sys.executable so the same Python that runs Streamlit is used,
+    and sets cwd to the repo root so relative paths (data/, fetch.py) resolve."""
+    import sys
+    repo_root = os.path.dirname(os.path.abspath(__file__))
     result = subprocess.run(
-        ["python", "fetch.py"],
+        [sys.executable, os.path.join(repo_root, "fetch.py")],
         capture_output=True,
         text=True,
+        cwd=repo_root,
     )
     return result.returncode == 0, result.stdout + result.stderr
 
@@ -732,8 +737,9 @@ def main() -> None:
             if success:
                 st.success("Digest updated!")
             else:
-                st.error("Fetch failed.")
-                st.text(output[-2000:])
+                st.error("Fetch failed — see output below.")
+            with st.expander("Fetch output"):
+                st.text(output[-3000:])
             st.rerun()
 
         if digest:
