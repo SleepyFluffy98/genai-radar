@@ -308,30 +308,63 @@ def deduplicate(articles: list[dict]) -> list[dict]:
 
 # ── Scoring ───────────────────────────────────────────────────────────────────
 
-def score_article(scorer, article: dict, profile_text: str) -> Article | None:
-    """Score one article with Azure OpenAI structured output.
-    Includes title, URL, source, feed snippet, and the active profile prompt."""
-    snippet_block = f"Excerpt: {article['snippet']}\n" if article.get("snippet") else ""
+# Condensed profile used in the fallback scorer to keep the prompt short
+_FALLBACK_SYSTEM = (
+    "You are scoring news articles for a GenAI consultant in Germany who builds "
+    "agentic workflows, RAG systems, and multi-agent pipelines for enterprise clients "
+    "in finance, insurance, and HR. Tech stack: Azure OpenAI, LangGraph, Streamlit. "
+    "Score 7-10 for anything directly useful to their work. "
+    "Score 1-4 for consumer AI, crypto, generic opinion pieces, or US-only regulatory news."
+)
 
-    prompt = (
+def _build_prompt(profile_text: str, article: dict) -> str:
+    """Build the full scoring prompt from profile text and article fields."""
+    snippet_block = f"Excerpt: {article['snippet']}\n" if article.get("snippet") else ""
+    return (
         f"{profile_text}\n\n"
         f"Score the following article:\n"
         f"Title:  {article['title']}\n"
         f"URL:    {article['url']}\n"
         f"Source: {article['source']}\n"
         f"{snippet_block}\n"
-        f"Return a structured assessment including a consultant-focused summary and "
-        f"concrete actionable insights. Set worth_reading=True only if the "
-        f"relevance_score meets the threshold AND the article is directly actionable."
+        f"Return a structured assessment with summary and actionable_insights. "
+        f"worth_reading should be True when relevance_score meets the threshold."
     )
+
+
+def score_article(scorer, llm, article: dict, profile_text: str) -> "Article | None":
+    """Score one article, with a simpler fallback prompt if structured output fails.
+
+    Primary attempt: full profile prompt + structured output.
+    Fallback: condensed system prompt — avoids token/schema overload on older models.
+    """
+    # ── Primary attempt ───────────────────────────────────────────────────────
     try:
-        result: Article = scorer.invoke(prompt)
-        # Preserve original URL and source — never let the LLM drift from these
+        result: Article = scorer.invoke(_build_prompt(profile_text, article))
         result.url    = article["url"]
         result.source = article["source"]
         return result
     except Exception as e:
-        print(f"  [WARNING] Scoring failed for '{article['title'][:50]}': {e}")
+        print(f"  [RETRY]   Primary scoring failed for '{article['title'][:50]}': {type(e).__name__}: {e}")
+
+    # ── Fallback: shorter prompt, same structured output ──────────────────────
+    try:
+        snippet = article.get("snippet", "")[:300]
+        fallback_prompt = (
+            f"{_FALLBACK_SYSTEM}\n\n"
+            f"Title: {article['title']}\n"
+            f"Source: {article['source']}\n"
+            f"{'Excerpt: ' + snippet if snippet else ''}\n\n"
+            f"Score this article for the consultant described above."
+        )
+        result: Article = scorer.invoke(fallback_prompt)
+        result.url    = article["url"]
+        result.source = article["source"]
+        result.title  = article["title"]
+        print(f"  [OK]      Fallback succeeded for '{article['title'][:50]}'")
+        return result
+    except Exception as e:
+        print(f"  [ERROR]   Fallback also failed for '{article['title'][:50]}': {type(e).__name__}: {e}")
         return None
 
 
@@ -391,7 +424,7 @@ def main() -> None:
     passed: list[Article] = []
     for i, article in enumerate(unique_articles, 1):
         print(f"  [{i:>3}/{dedup_count}] {article['title'][:65]}...")
-        result = score_article(scorer, article, profile_text)
+        result = score_article(scorer, llm, article, profile_text)
         if result:
             all_scored.append(result)
             # Filter on score alone — worth_reading can be overly conservative
