@@ -386,13 +386,28 @@ def main() -> None:
     llm    = get_llm()
     scorer = llm.with_structured_output(Article)
 
+    # Collect all scored results, not just passing ones — needed for the safety net
+    all_scored: list[Article] = []
     passed: list[Article] = []
     for i, article in enumerate(unique_articles, 1):
         print(f"  [{i:>3}/{dedup_count}] {article['title'][:65]}...")
         result = score_article(scorer, article, profile_text)
-        if result and result.worth_reading and result.relevance_score >= min_score:
-            passed.append(result)
+        if result:
+            all_scored.append(result)
+            # Filter on score alone — worth_reading can be overly conservative
+            if result.relevance_score >= min_score:
+                passed.append(result)
         time.sleep(0.3)  # gentle rate-limit buffer
+
+    # Safety net: if nothing passed, keep the top 3 scored articles regardless
+    MIN_ARTICLES = 3
+    if len(passed) < MIN_ARTICLES and all_scored:
+        all_scored.sort(key=lambda a: a.relevance_score, reverse=True)
+        fallback = [a for a in all_scored if a not in passed]
+        needed   = MIN_ARTICLES - len(passed)
+        passed.extend(fallback[:needed])
+        print(f"  [INFO] Safety net: added {min(needed, len(fallback))} article(s) "
+              f"below threshold to reach minimum of {MIN_ARTICLES}.")
 
     # Sort best-first
     passed.sort(key=lambda a: a.relevance_score, reverse=True)
@@ -413,7 +428,7 @@ def main() -> None:
     print("\n=== Summary ===")
     print(f"  Raw articles fetched:     {raw_count}")
     print(f"  After deduplication:      {dedup_count}")
-    print(f"  Passed filter (score≥7):  {len(passed)}")
+    print(f"  Passed filter (score≥{min_score}): {len(passed)}")
     if failed_sources:
         print(f"  Failed sources ({len(failed_sources)}):      {', '.join(failed_sources)}")
     else:
