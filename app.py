@@ -755,18 +755,26 @@ def main() -> None:
             token = os.environ.get("GITHUB_TOKEN", "")
             repo  = os.environ.get("GITHUB_REPO", "")
             if not token or not repo:
-                st.warning(
-                    "GITHUB_TOKEN and GITHUB_REPO are not set in Streamlit secrets. "
-                    "Add them to enable the Refresh button.",
-                    icon="⚠️",
+                st.session_state["refresh_msg"] = (
+                    "warning",
+                    "GITHUB_TOKEN and GITHUB_REPO are not set in Streamlit secrets — "
+                    "add them to enable this button.",
                 )
             else:
                 with st.spinner("Triggering GitHub Actions workflow…"):
                     success, message = trigger_github_action()
-                if success:
-                    st.success(message)
-                else:
-                    st.error(message)
+                st.session_state["refresh_msg"] = ("ok" if success else "error", message)
+
+        # Show persisted refresh status (survives rerenders)
+        msg = st.session_state.get("refresh_msg")
+        if msg:
+            kind, text = msg
+            if kind == "ok":
+                st.success(text)
+            elif kind == "warning":
+                st.warning(text)
+            else:
+                st.error(text)
             st.rerun()
 
         if digest:

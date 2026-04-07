@@ -201,12 +201,39 @@ BONUS — push score to 9–10 for:
 # ── LLM initialisation ────────────────────────────────────────────────────────
 
 def get_llm() -> AzureChatOpenAI:
-    """Initialise AzureChatOpenAI from environment variables."""
+    """Initialise AzureChatOpenAI — validates and normalises env vars before use."""
+    endpoint   = os.environ.get("AZURE_OPENAI_ENDPOINT", "").strip().strip('"').strip("'")
+    deployment = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "").strip().strip('"').strip("'")
+    api_key    = os.environ.get("AZURE_OPENAI_API_KEY", "").strip().strip('"').strip("'")
+    api_version= os.environ.get("AZURE_OPENAI_API_VERSION", "").strip().strip('"').strip("'")
+
+    # Normalise endpoint — ensure it starts with https://
+    if endpoint and not endpoint.startswith("http"):
+        endpoint = "https://" + endpoint
+    # Ensure trailing slash (required by Azure SDK)
+    if endpoint and not endpoint.endswith("/"):
+        endpoint = endpoint + "/"
+
+    # Print masked config so GitHub Actions logs show what was received
+    print(f"  [CONFIG] endpoint   : {endpoint[:40]}..." if len(endpoint) > 40 else f"  [CONFIG] endpoint   : {endpoint!r}")
+    print(f"  [CONFIG] deployment : {deployment!r}")
+    print(f"  [CONFIG] api_version: {api_version!r}")
+    print(f"  [CONFIG] api_key    : {'SET (' + str(len(api_key)) + ' chars)' if api_key else 'MISSING'}")
+
+    missing = [k for k, v in [
+        ("AZURE_OPENAI_ENDPOINT", endpoint),
+        ("AZURE_OPENAI_DEPLOYMENT", deployment),
+        ("AZURE_OPENAI_API_KEY", api_key),
+        ("AZURE_OPENAI_API_VERSION", api_version),
+    ] if not v]
+    if missing:
+        raise RuntimeError(f"Missing or empty environment variables: {', '.join(missing)}")
+
     return AzureChatOpenAI(
-        azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
-        azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT"],
-        api_key=os.environ["AZURE_OPENAI_API_KEY"],
-        api_version=os.environ["AZURE_OPENAI_API_VERSION"],
+        azure_endpoint=endpoint,
+        azure_deployment=deployment,
+        api_key=api_key,
+        api_version=api_version,
         temperature=0,
     )
 
