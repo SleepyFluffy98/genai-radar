@@ -12,6 +12,13 @@ jobs:
     permissions:
       contents: write       # required to commit and push digest.json
 
+    env:
+      # Non-sensitive config hardcoded directly — only the API key comes from Secrets
+      AZURE_OPENAI_ENDPOINT:    "https://aura-agent-test.openai.azure.com/"
+      AZURE_OPENAI_DEPLOYMENT:  "gpt-4"
+      AZURE_OPENAI_API_VERSION: "2024-02-01"
+      AZURE_OPENAI_API_KEY:     ${{ secrets.AZURE_OPENAI_API_KEY }}
+
     steps:
       - name: Checkout repo (full history)
         uses: actions/checkout@v4
@@ -26,35 +33,19 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Validate secrets are set
-        env:
-          AZURE_OPENAI_ENDPOINT:    ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          AZURE_OPENAI_DEPLOYMENT:  ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
-          AZURE_OPENAI_API_KEY:     ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+      - name: Validate config
         run: |
-          echo "=== Secret validation ==="
-          echo "ENDPOINT    first 20 chars: ${AZURE_OPENAI_ENDPOINT:0:20}"
-          echo "DEPLOYMENT  value         : ${AZURE_OPENAI_DEPLOYMENT}"
-          echo "API_VERSION value         : ${AZURE_OPENAI_API_VERSION}"
-          echo "API_KEY     length        : ${#AZURE_OPENAI_API_KEY}"
-          # Fail fast if endpoint is empty
-          if [ -z "$AZURE_OPENAI_ENDPOINT" ]; then
-            echo "ERROR: AZURE_OPENAI_ENDPOINT secret is empty!"
-            exit 1
-          fi
+          echo "ENDPOINT    : $AZURE_OPENAI_ENDPOINT"
+          echo "DEPLOYMENT  : $AZURE_OPENAI_DEPLOYMENT"
+          echo "API_VERSION : $AZURE_OPENAI_API_VERSION"
+          echo "API_KEY len : ${#AZURE_OPENAI_API_KEY}"
           if [ -z "$AZURE_OPENAI_API_KEY" ]; then
-            echo "ERROR: AZURE_OPENAI_API_KEY secret is empty!"
+            echo "ERROR: AZURE_OPENAI_API_KEY secret is empty — add it in GitHub repo Settings → Secrets → Actions"
             exit 1
           fi
-          echo "All required secrets are set."
+          echo "Config OK."
 
       - name: Run fetch.py
-        env:
-          AZURE_OPENAI_ENDPOINT:    ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          AZURE_OPENAI_DEPLOYMENT:  ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
-          AZURE_OPENAI_API_KEY:     ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
         run: python fetch.py
 
       - name: Commit and push digest.json
