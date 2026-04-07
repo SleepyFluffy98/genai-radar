@@ -17,7 +17,7 @@ jobs:
       AZURE_OPENAI_ENDPOINT:    "https://aura-agent-test.openai.azure.com/"
       AZURE_OPENAI_DEPLOYMENT:  "gpt-4"
       AZURE_OPENAI_API_VERSION: "2024-02-01"
-      AZURE_OPENAI_API_KEY:     ${{ secrets.AZURE_OPENAI_API_KEY }}
+      AZURE_OPENAI_API_KEY:     ${{ vars.AZURE_OPENAI_API_KEY }}
 
     steps:
       - name: Checkout repo (full history)
