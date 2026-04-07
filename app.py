@@ -301,21 +301,41 @@ def render_article_card(
         st.divider()
 
 
-# ── Subprocess fetch ──────────────────────────────────────────────────────────
+# ── GitHub Actions trigger ────────────────────────────────────────────────────
 
-def run_fetch() -> tuple[bool, str]:
-    """Run fetch.py as a subprocess; return (success, combined stdout+stderr).
-    Uses sys.executable so the same Python that runs Streamlit is used,
-    and sets cwd to the repo root so relative paths (data/, fetch.py) resolve."""
+def trigger_github_action() -> tuple[bool, str]:
+    """Dispatch the daily_fetch workflow via the GitHub API.
+
+    Requires GITHUB_TOKEN, GITHUB_REPO (owner/repo) set as Streamlit secrets.
+    Falls back to a local subprocess run if those secrets are not configured.
+    """
+    token = os.environ.get("GITHUB_TOKEN", "")
+    repo  = os.environ.get("GITHUB_REPO", "")
+
+    if token and repo:
+        url  = f"https://api.github.com/repos/{repo}/actions/workflows/daily_fetch.yml/dispatches"
+        resp = requests.post(
+            url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/vnd.github+json",
+            },
+            json={"ref": "main"},
+            timeout=15,
+        )
+        if resp.status_code == 204:
+            return True, "GitHub Actions workflow triggered. Check the Actions tab for progress (~3 min)."
+        return False, f"GitHub API returned {resp.status_code}: {resp.text}"
+
+    # Fallback: run locally (works when app is run locally, not on Streamlit Cloud)
     import sys
     repo_root = os.path.dirname(os.path.abspath(__file__))
     result = subprocess.run(
         [sys.executable, os.path.join(repo_root, "fetch.py")],
-        capture_output=True,
-        text=True,
-        cwd=repo_root,
+        capture_output=True, text=True, cwd=repo_root,
     )
-    return result.returncode == 0, result.stdout + result.stderr
+    output = result.stdout + result.stderr
+    return result.returncode == 0, output
 
 
 # ── Pages ─────────────────────────────────────────────────────────────────────
@@ -732,14 +752,12 @@ def main() -> None:
 
         # Refresh + meta
         if st.button("Refresh now", use_container_width=True):
-            with st.spinner("Fetching and scoring articles… (~2–4 min)"):
-                success, output = run_fetch()
+            with st.spinner("Triggering fetch…"):
+                success, message = trigger_github_action()
             if success:
-                st.success("Digest updated!")
+                st.success(message)
             else:
-                st.error("Fetch failed — see output below.")
-            with st.expander("Fetch output"):
-                st.text(output[-3000:])
+                st.error(message)
             st.rerun()
 
         if digest:

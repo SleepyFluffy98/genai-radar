@@ -3,7 +3,7 @@ name: Daily GenAI Radar Fetch
 on:
   schedule:
     - cron: "0 6 * * *"   # 07:00 CET / 06:00 UTC every day
-  workflow_dispatch:        # also allows manual trigger from the GitHub UI
+  workflow_dispatch:        # manual trigger from GitHub UI or API
 
 jobs:
   fetch:
@@ -25,6 +25,38 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Diagnose LLM connectivity
+        env:
+          AZURE_OPENAI_ENDPOINT:    ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_DEPLOYMENT:  ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
+          AZURE_OPENAI_API_KEY:     ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+        run: |
+          python - <<'EOF'
+          import os, json
+          from langchain_openai import AzureChatOpenAI
+          llm = AzureChatOpenAI(
+              azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+              azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT"],
+              api_key=os.environ["AZURE_OPENAI_API_KEY"],
+              api_version=os.environ["AZURE_OPENAI_API_VERSION"],
+              temperature=0,
+          )
+          prompt = (
+              'Score this article for a GenAI consultant.\n'
+              'Title: LangGraph adds multi-agent support\n'
+              'Source: LangChain Blog\n\n'
+              'Respond with ONLY this JSON (no markdown, no extra text):\n'
+              '{"relevance_score": 9, "reason": "test", "summary": "test", '
+              '"actionable_insights": ["test"], "category": "tools", '
+              '"domain": "general", "worth_reading": true}'
+          )
+          resp = llm.invoke(prompt)
+          print("=== RAW LLM RESPONSE ===")
+          print(repr(resp.content))
+          print("=== END ===")
+          EOF
 
       - name: Run fetch.py
         env:
