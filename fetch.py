@@ -320,11 +320,33 @@ Required fields:
   "worth_reading": boolean — true if score >= 7 and directly actionable
 """
 
+def _extract_json(raw: str) -> dict:
+    """Extract a JSON object from a string robustly.
+
+    Handles: plain JSON, markdown code fences, leading/trailing prose.
+    Tries json.loads first, then hunts for the outermost {...} block.
+    """
+    text = raw.strip()
+    # Strip code fences
+    text = re.sub(r"^```[a-z]*\n?", "", text)
+    text = re.sub(r"\n?```$", "", text)
+    text = text.strip()
+    # First try: clean parse
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    # Second try: find the outermost { ... } block in case of surrounding prose
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    raise ValueError(f"No JSON object found in response: {text[:200]!r}")
+
+
 def score_article(llm, article: dict, profile_text: str) -> "Article | None":
     """Score one article using a plain-JSON prompt — no function calling.
 
-    Asks the LLM to return raw JSON, then parses and validates it into an Article.
-    This is compatible with all GPT-4 versions and API versions.
+    Asks the LLM to return raw JSON, extracts it robustly, validates into Article.
     """
     snippet_block = f"Excerpt: {article['snippet'][:400]}\n" if article.get("snippet") else ""
     prompt = (
@@ -337,26 +359,20 @@ def score_article(llm, article: dict, profile_text: str) -> "Article | None":
     )
     try:
         response = llm.invoke(prompt)
-        raw = response.content.strip()
-        # Strip markdown code fences if the model added them anyway
-        if raw.startswith("```"):
-            raw = re.sub(r"^```[a-z]*\n?", "", raw)
-            raw = re.sub(r"\n?```$", "", raw)
-        data = json.loads(raw)
+        raw      = response.content
+        data     = _extract_json(raw)
 
         valid_categories = {"models", "tools", "implementation", "industry", "regulation", "tutorial"}
         valid_domains    = {"general", "finance", "insurance", "hr", "data-science"}
+        category = str(data.get("category", "")) if str(data.get("category", "")) in valid_categories else "industry"
+        domain   = str(data.get("domain",   "")) if str(data.get("domain",   "")) in valid_domains    else "general"
 
-        raw_cat    = str(data.get("category", ""))
-        raw_domain = str(data.get("domain", ""))
-        category   = raw_cat    if raw_cat    in valid_categories else "industry"
-        domain     = raw_domain if raw_domain in valid_domains    else "general"
-
+        score = max(1, min(10, int(data["relevance_score"])))
         return Article(
             title               = article["title"],
             url                 = article["url"],
             source              = article["source"],
-            relevance_score     = int(data["relevance_score"]),
+            relevance_score     = score,
             reason              = str(data.get("reason", "")),
             summary             = str(data.get("summary", "")),
             actionable_insights = list(data.get("actionable_insights", [])),
@@ -365,7 +381,12 @@ def score_article(llm, article: dict, profile_text: str) -> "Article | None":
             worth_reading       = bool(data.get("worth_reading", False)),
         )
     except Exception as e:
-        print(f"  [ERROR] '{article['title'][:60]}': {type(e).__name__}: {e}")
+        # Log the raw response so GitHub Actions output shows what went wrong
+        raw_snippet = locals().get("raw", "NO RESPONSE")
+        if hasattr(raw_snippet, "__len__") and len(raw_snippet) > 300:
+            raw_snippet = raw_snippet[:300] + "…"
+        print(f"  [ERROR] '{article['title'][:55]}': {type(e).__name__}: {e}")
+        print(f"          raw response: {raw_snippet!r}")
         return None
 
 
@@ -444,6 +465,12 @@ def main() -> None:
 
     # Sort best-first
     passed.sort(key=lambda a: a.relevance_score, reverse=True)
+
+    # Only overwrite digest if we have results — never clobber a good digest with 0 articles
+    if not passed:
+        print("\n[WARNING] 0 articles passed — keeping existing digest.json unchanged.")
+        print("  Check the [ERROR] lines above to diagnose why scoring failed.")
+        return
 
     # Persist digest — include raw/dedup counts for the FOMO stats in the UI
     os.makedirs("data", exist_ok=True)
