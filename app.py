@@ -752,12 +752,21 @@ def main() -> None:
 
         # Refresh + meta
         if st.button("Refresh now", use_container_width=True):
-            with st.spinner("Triggering fetch…"):
-                success, message = trigger_github_action()
-            if success:
-                st.success(message)
+            token = os.environ.get("GITHUB_TOKEN", "")
+            repo  = os.environ.get("GITHUB_REPO", "")
+            if not token or not repo:
+                st.warning(
+                    "GITHUB_TOKEN and GITHUB_REPO are not set in Streamlit secrets. "
+                    "Add them to enable the Refresh button.",
+                    icon="⚠️",
+                )
             else:
-                st.error(message)
+                with st.spinner("Triggering GitHub Actions workflow…"):
+                    success, message = trigger_github_action()
+                if success:
+                    st.success(message)
+                else:
+                    st.error(message)
             st.rerun()
 
         if digest:
