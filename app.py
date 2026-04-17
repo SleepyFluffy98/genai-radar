@@ -2,13 +2,11 @@ import json
 import os
 import subprocess
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 
 import streamlit as st
 
-DIGEST_PATH    = "data/digest.json"
-FAVORITES_PATH = "data/favorites.json"
-PROFILE_PATH   = "data/profile.json"
+DIGEST_PATH = "data/digest.json"
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -38,7 +36,7 @@ CATEGORY_ICONS = {
     "tutorial":       "📚",
 }
 
-TOTAL_SOURCES = 23  # 20 RSS + 3 Reddit
+TOTAL_SOURCES = 23
 
 # ── Profile form option lists ─────────────────────────────────────────────────
 
@@ -101,7 +99,6 @@ EXCLUSION_OPTIONS = [
     "AI art & creative tools",
 ]
 
-# Pre-filled defaults so first-time users can just review + submit
 DEFAULT_PROFILE: dict = {
     "role":         "GenAI Implementation Consultant",
     "company_type": "IT Consultancy",
@@ -109,7 +106,7 @@ DEFAULT_PROFILE: dict = {
     "tech_stack": {
         "llm_providers": ["Azure OpenAI"],
         "frameworks":    ["LangGraph", "LangChain"],
-        "infrastructure":["Azure", "Azure Container Apps"],
+        "infrastructure": ["Azure", "Azure Container Apps"],
         "frontend":      ["Streamlit"],
     },
     "client_domains": [
@@ -117,16 +114,8 @@ DEFAULT_PROFILE: dict = {
         "HR & Talent Management", "Data Science & Analytics",
     ],
     "projects": [
-        {
-            "name": "A-MATCH",
-            "description": "Internal mobility platform — AI-powered talent matching for HR",
-            "tech": ["LangGraph", "Azure OpenAI", "Streamlit"],
-        },
-        {
-            "name": "Text2SQL Data Analyst",
-            "description": "Natural language to SQL agent for business data analysis",
-            "tech": ["LangChain", "Azure OpenAI", "Streamlit"],
-        },
+        {"name": "", "description": "", "tech": []},
+        {"name": "", "description": "", "tech": []},
         {"name": "", "description": "", "tech": []},
     ],
     "interests": [
@@ -153,76 +142,228 @@ DEFAULT_PROFILE: dict = {
 }
 
 
-# ── Data helpers ──────────────────────────────────────────────────────────────
+# ── Auth ──────────────────────────────────────────────────────────────────────
 
-def load_digest() -> dict | None:
-    """Load digest.json; return None if it doesn't exist yet."""
-    if not os.path.exists(DIGEST_PATH):
+def get_users() -> dict[str, str]:
+    """Load username→password map from Streamlit secrets [users] section.
+    Falls back to single APP_PASSWORD under username 'user' for backward compat."""
+    try:
+        users = dict(st.secrets.get("users", {}))
+        if users:
+            return users
+    except Exception:
+        pass
+    # Fallback: single-user mode via APP_PASSWORD env var
+    pwd = os.environ.get("APP_PASSWORD", "")
+    return {"user": pwd} if pwd else {}
+
+
+def check_login() -> bool:
+    """Show login form, return True once the user is authenticated.
+    Stores username in st.session_state.username on success."""
+    if st.session_state.get("username"):
+        return True
+
+    users = get_users()
+    if not users:
+        # No auth configured — open access (local dev)
+        st.session_state.username = "local"
+        return True
+
+    st.set_page_config(page_title="GenAI Radar", layout="centered", page_icon="📡")
+    st.title("GenAI Radar")
+    st.markdown("---")
+
+    multi_user = len(users) > 1 or "user" not in users
+
+    if multi_user:
+        username_input = st.text_input("Username")
+    else:
+        username_input = "user"
+
+    password_input = st.text_input("Password", type="password")
+
+    if st.button("Sign in", use_container_width=True):
+        expected = users.get(username_input, "")
+        if expected and password_input == expected:
+            st.session_state.username = username_input
+            st.rerun()
+        else:
+            st.error("Incorrect username or password.")
+
+    return False
+
+
+# ── Supabase client ───────────────────────────────────────────────────────────
+
+@st.cache_resource
+def get_supabase():
+    """Return a cached Supabase client, or None if not configured."""
+    url = os.environ.get("SUPABASE_URL", "")
+    key = os.environ.get("SUPABASE_ANON_KEY", "")
+    if not url or not key:
         return None
-    with open(DIGEST_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        from supabase import create_client
+        return create_client(url, key)
+    except Exception as e:
+        st.warning(f"Supabase init failed: {e} — using local storage fallback.")
+        return None
 
 
-def load_favorites() -> dict:
-    """Load favorites.json; return an empty structure if not found."""
-    if not os.path.exists(FAVORITES_PATH):
+# ── Data layer — favorites ────────────────────────────────────────────────────
+
+def load_favorites(username: str) -> dict:
+    """Load favorites for a user. Uses Supabase if configured, else local JSON."""
+    db = get_supabase()
+    if db:
+        try:
+            rows = db.table("favorites").select("*").eq("username", username).execute().data
+            return {
+                "favorites": [
+                    {
+                        "article":  row["article"],
+                        "saved_at": row["saved_at"],
+                        "comment":  row.get("comment", ""),
+                    }
+                    for row in rows
+                ]
+            }
+        except Exception as e:
+            st.warning(f"Could not load favorites from database: {e}")
+            return {"favorites": []}
+
+    # Local fallback — per-user file
+    path = f"data/favorites_{username}.json"
+    if not os.path.exists(path):
         return {"favorites": []}
-    with open(FAVORITES_PATH, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def save_favorites(data: dict) -> None:
-    """Persist favorites to disk."""
+def add_favorite(username: str, article: dict) -> None:
+    """Save an article to a user's favorites."""
+    db = get_supabase()
+    if db:
+        try:
+            db.table("favorites").upsert({
+                "username": username,
+                "url":      article["url"],
+                "article":  article,
+                "comment":  "",
+                "saved_at": datetime.now(timezone.utc).isoformat(),
+            }, on_conflict="username,url").execute()
+        except Exception as e:
+            st.error(f"Could not save favorite: {e}")
+        return
+
+    # Local fallback
+    favs = load_favorites(username)
+    favs["favorites"].append({
+        "article":  article,
+        "saved_at": datetime.now(timezone.utc).isoformat(),
+        "comment":  "",
+    })
+    _save_favorites_local(username, favs)
+
+
+def remove_favorite(username: str, url: str) -> None:
+    """Remove an article from a user's favorites."""
+    db = get_supabase()
+    if db:
+        try:
+            db.table("favorites").delete().eq("username", username).eq("url", url).execute()
+        except Exception as e:
+            st.error(f"Could not remove favorite: {e}")
+        return
+
+    favs = load_favorites(username)
+    favs["favorites"] = [f for f in favs["favorites"] if f["article"]["url"] != url]
+    _save_favorites_local(username, favs)
+
+
+def update_comment(username: str, url: str, comment: str) -> None:
+    """Update the note for a saved article."""
+    db = get_supabase()
+    if db:
+        try:
+            db.table("favorites").update({"comment": comment}).eq("username", username).eq("url", url).execute()
+        except Exception as e:
+            st.error(f"Could not save note: {e}")
+        return
+
+    favs = load_favorites(username)
+    for fav in favs["favorites"]:
+        if fav["article"]["url"] == url:
+            fav["comment"] = comment
+            break
+    _save_favorites_local(username, favs)
+
+
+def _save_favorites_local(username: str, data: dict) -> None:
+    """Write favorites to a per-user local JSON file."""
     os.makedirs("data", exist_ok=True)
-    with open(FAVORITES_PATH, "w", encoding="utf-8") as f:
+    with open(f"data/favorites_{username}.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
 def favorited_urls(favorites: dict) -> set[str]:
-    """Return the set of URLs currently in the favorites list."""
+    """Return the set of article URLs saved by this user."""
     return {fav["article"]["url"] for fav in favorites.get("favorites", [])}
 
 
-def add_favorite(article: dict, favorites: dict) -> dict:
-    """Add an article to favorites with an empty comment."""
-    favorites["favorites"].append({
-        "article":  article,
-        "saved_at": datetime.utcnow().isoformat(),
-        "comment":  "",
-    })
-    return favorites
+# ── Data layer — profile ──────────────────────────────────────────────────────
 
-
-def remove_favorite(url: str, favorites: dict) -> dict:
-    """Remove a favorite by URL."""
-    favorites["favorites"] = [
-        f for f in favorites["favorites"] if f["article"]["url"] != url
-    ]
-    return favorites
-
-
-def load_profile() -> dict:
-    """Load profile.json; return DEFAULT_PROFILE if not found."""
-    if not os.path.exists(PROFILE_PATH):
+def load_profile(username: str) -> dict:
+    """Load profile for a user. Uses Supabase if configured, else local JSON."""
+    db = get_supabase()
+    if db:
+        try:
+            rows = db.table("user_profiles").select("profile").eq("username", username).execute().data
+            if rows:
+                return rows[0]["profile"]
+        except Exception as e:
+            st.warning(f"Could not load profile from database: {e}")
         return DEFAULT_PROFILE.copy()
-    with open(PROFILE_PATH, "r", encoding="utf-8") as f:
+
+    path = f"data/profile_{username}.json"
+    if not os.path.exists(path):
+        # Also check old single-user path for migration
+        if os.path.exists("data/profile.json"):
+            with open("data/profile.json", "r", encoding="utf-8") as f:
+                return json.load(f)
+        return DEFAULT_PROFILE.copy()
+    with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def save_profile(data: dict) -> None:
-    """Persist profile to disk."""
+def save_profile(username: str, data: dict) -> None:
+    """Save profile for a user."""
+    db = get_supabase()
+    if db:
+        try:
+            db.table("user_profiles").upsert({
+                "username":   username,
+                "profile":    data,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }, on_conflict="username").execute()
+        except Exception as e:
+            st.error(f"Could not save profile: {e}")
+        return
+
     os.makedirs("data", exist_ok=True)
-    with open(PROFILE_PATH, "w", encoding="utf-8") as f:
+    with open(f"data/profile_{username}.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
-def update_comment(url: str, comment: str, favorites: dict) -> dict:
-    """Update the comment for a saved article."""
-    for fav in favorites["favorites"]:
-        if fav["article"]["url"] == url:
-            fav["comment"] = comment
-            break
-    return favorites
+# ── Digest ────────────────────────────────────────────────────────────────────
+
+def load_digest() -> dict | None:
+    """Load the shared daily digest from disk."""
+    if not os.path.exists(DIGEST_PATH):
+        return None
+    with open(DIGEST_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def format_timestamp(iso_str: str) -> tuple[str, str]:
@@ -234,18 +375,13 @@ def format_timestamp(iso_str: str) -> tuple[str, str]:
 # ── Rendering helpers ─────────────────────────────────────────────────────────
 
 def domain_badge(domain: str) -> str:
-    """Return a Streamlit colored-badge markdown string for a domain."""
     color = DOMAIN_COLORS.get(domain, "blue")
     label = DOMAIN_LABELS.get(domain, domain)
     return f":{color}-badge[{label}]"
 
 
-def render_article_card(
-    article: dict,
-    saved_urls: set[str],
-    key_prefix: str = "",
-) -> None:
-    """Render one article: title link, meta row, reason, AI summary expander, save button."""
+def render_article_card(article: dict, saved_urls: set[str], username: str, key_prefix: str = "") -> None:
+    """Render one article card with save toggle, summary expander, and meta row."""
     with st.container():
         title    = article["title"]
         url      = article["url"]
@@ -261,23 +397,19 @@ def render_article_card(
         icon  = CATEGORY_ICONS.get(category, "")
         badge = domain_badge(domain)
 
-        # Title row: clickable title + save/unsave toggle
         title_col, btn_col = st.columns([11, 1])
         with title_col:
             st.markdown(f"### [{title}]({url})")
         with btn_col:
-            star  = "⭐" if is_saved else "☆"
-            label = "Unsave" if is_saved else "Save"
-            if st.button(star, key=f"{key_prefix}{url}", help=label, use_container_width=True):
-                favs = load_favorites()
+            star = "⭐" if is_saved else "☆"
+            help_text = "Unsave" if is_saved else "Save"
+            if st.button(star, key=f"{key_prefix}{url}", help=help_text, use_container_width=True):
                 if is_saved:
-                    favs = remove_favorite(url, favs)
+                    remove_favorite(username, url)
                 else:
-                    favs = add_favorite(article, favs)
-                save_favorites(favs)
+                    add_favorite(username, article)
                 st.rerun()
 
-        # Meta row: source | domain | score | category
         c1, c2, c3 = st.columns([3, 1, 1])
         with c1:
             st.markdown(f"**{source}** &nbsp; {badge}")
@@ -286,10 +418,8 @@ def render_article_card(
         with c3:
             st.markdown(f"{icon} `{category}`")
 
-        # One-line relevance hook
         st.caption(reason)
 
-        # Expandable AI summary + actionable insights
         if summary or insights:
             with st.expander("AI Summary & Insights"):
                 if summary:
@@ -305,11 +435,7 @@ def render_article_card(
 # ── GitHub Actions trigger ────────────────────────────────────────────────────
 
 def trigger_github_action() -> tuple[bool, str]:
-    """Dispatch the daily_fetch workflow via the GitHub API.
-
-    Requires GITHUB_TOKEN, GITHUB_REPO (owner/repo) set as Streamlit secrets.
-    Falls back to a local subprocess run if those secrets are not configured.
-    """
+    """Dispatch the daily_fetch workflow via the GitHub API."""
     token = os.environ.get("GITHUB_TOKEN", "")
     repo  = os.environ.get("GITHUB_REPO", "")
 
@@ -317,52 +443,44 @@ def trigger_github_action() -> tuple[bool, str]:
         url  = f"https://api.github.com/repos/{repo}/actions/workflows/daily_fetch.yml/dispatches"
         resp = requests.post(
             url,
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Accept": "application/vnd.github+json",
-            },
+            headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
             json={"ref": "main"},
             timeout=15,
         )
         if resp.status_code == 204:
-            return True, "GitHub Actions workflow triggered. Check the Actions tab for progress (~3 min)."
+            return True, "Workflow triggered. New articles will appear in ~3 minutes."
         return False, f"GitHub API returned {resp.status_code}: {resp.text}"
 
-    # Fallback: run locally (works when app is run locally, not on Streamlit Cloud)
     import sys
     repo_root = os.path.dirname(os.path.abspath(__file__))
     result = subprocess.run(
         [sys.executable, os.path.join(repo_root, "fetch.py")],
         capture_output=True, text=True, cwd=repo_root,
     )
-    output = result.stdout + result.stderr
-    return result.returncode == 0, output
+    return result.returncode == 0, result.stdout + result.stderr
 
 
 # ── Pages ─────────────────────────────────────────────────────────────────────
 
-def page_radar(digest: dict, favorites: dict) -> None:
-    """Main page: FOMO stats banner, article list with filters applied from sidebar."""
+def page_radar(digest: dict, username: str) -> None:
+    """Main Radar page — FOMO stats, filters, article cards."""
     articles     = digest.get("articles", [])
     passed_count = digest.get("article_count", len(articles))
-    # raw_count and dedup_count only exist in digests generated after the schema update.
-    # Use None as sentinel so stale digests show "—" rather than a misleading number.
     raw_count    = digest.get("raw_count")
     dedup_count  = digest.get("dedup_count")
     filtered_out = (dedup_count - passed_count) if dedup_count is not None else None
     pct_str      = f"{int(100 * passed_count / dedup_count)}%" if dedup_count else "—"
     date_str, time_str = format_timestamp(digest["generated_at"])
 
-    # ── FOMO stats ────────────────────────────────────────────────────────────
     m1, m2, m3, m4 = st.columns(4)
     with m1:
-        st.metric("Scanned today", raw_count if raw_count is not None else "—")
+        st.metric("Scanned today",  raw_count if raw_count is not None else "—")
     with m2:
-        st.metric("Made the cut", passed_count)
+        st.metric("Made the cut",   passed_count)
     with m3:
-        st.metric("Filtered out", filtered_out if filtered_out is not None else "—")
+        st.metric("Filtered out",   filtered_out if filtered_out is not None else "—")
     with m4:
-        st.metric("Last updated", f"{date_str} {time_str}")
+        st.metric("Last updated",   f"{date_str} {time_str}")
 
     if raw_count is not None:
         st.caption(
@@ -371,8 +489,8 @@ def page_radar(digest: dict, favorites: dict) -> None:
         )
     else:
         st.caption("Hit **Refresh now** to see full scan statistics.")
+    st.markdown("---")
 
-    # ── Apply filters from sidebar session state ──────────────────────────────
     cat_filter    = st.session_state.get("filter_cats")    or ALL_CATEGORIES
     domain_filter = st.session_state.get("filter_domains") or ALL_DOMAINS
 
@@ -380,13 +498,14 @@ def page_radar(digest: dict, favorites: dict) -> None:
         a for a in articles
         if a["category"] in cat_filter and a["domain"] in domain_filter
     ]
-
     if st.session_state.get("filter_sort", "Relevance") == "Relevance":
         filtered.sort(key=lambda a: a["relevance_score"], reverse=True)
     else:
         filtered.sort(key=lambda a: (a["category"], -a["relevance_score"]))
 
+    favorites  = load_favorites(username)
     saved_urls = favorited_urls(favorites)
+
     count_word = "article" if len(filtered) == 1 else "articles"
     st.markdown(f"**Showing {len(filtered)} {count_word}**")
 
@@ -395,19 +514,17 @@ def page_radar(digest: dict, favorites: dict) -> None:
         return
 
     for article in filtered:
-        render_article_card(article, saved_urls, key_prefix="radar_")
+        render_article_card(article, saved_urls, username, key_prefix="radar_")
 
 
-def page_saved(favorites: dict) -> None:
-    """Saved articles page: list with AI summary, comment box, and remove button."""
-    st.title("⭐ Saved Articles")
-    items = favorites.get("favorites", [])
+def page_saved(username: str) -> None:
+    """Saved articles page — per-user favorites with notes."""
+    st.title("Saved Articles")
+    favorites = load_favorites(username)
+    items     = favorites.get("favorites", [])
 
     if not items:
-        st.info(
-            "No saved articles yet.\n\n"
-            "Go to **📡 Radar** and click **☆** on any article to save it here."
-        )
+        st.info("No saved articles yet.\n\nGo to **Radar** and click ☆ on any article to save it here.")
         return
 
     count_word = "article" if len(items) == 1 else "articles"
@@ -432,17 +549,14 @@ def page_saved(favorites: dict) -> None:
             badge = domain_badge(domain)
             icon  = CATEGORY_ICONS.get(category, "")
 
-            # Title + remove button
             title_col, rm_col = st.columns([11, 1])
             with title_col:
                 st.markdown(f"### [{title}]({url})")
             with rm_col:
-                if st.button("🗑️", key=f"rm_{url}_{i}", help="Remove from saved", use_container_width=True):
-                    updated = remove_favorite(url, load_favorites())
-                    save_favorites(updated)
+                if st.button("🗑️", key=f"rm_{url}_{i}", help="Remove", use_container_width=True):
+                    remove_favorite(username, url)
                     st.rerun()
 
-            # Meta row
             c1, c2, c3 = st.columns([3, 1, 1])
             with c1:
                 st.markdown(f"**{source}** &nbsp; {badge}")
@@ -453,12 +567,11 @@ def page_saved(favorites: dict) -> None:
 
             if saved_at:
                 try:
-                    dt = datetime.fromisoformat(saved_at)
+                    dt = datetime.fromisoformat(saved_at.replace("Z", "+00:00"))
                     st.caption(f"Saved {dt.strftime('%Y-%m-%d %H:%M UTC')}")
                 except Exception:
                     pass
 
-            # AI summary + insights (collapsed)
             if summary or insights:
                 with st.expander("AI Summary & Insights"):
                     if summary:
@@ -468,7 +581,6 @@ def page_saved(favorites: dict) -> None:
                         for insight in insights:
                             st.markdown(f"- {insight}")
 
-            # Notes / comment
             st.markdown("**My notes**")
             new_comment = st.text_area(
                 "note",
@@ -481,33 +593,26 @@ def page_saved(favorites: dict) -> None:
             save_col, _ = st.columns([1, 6])
             with save_col:
                 if st.button("Save note", key=f"save_note_{url}_{i}"):
-                    updated = update_comment(url, new_comment, load_favorites())
-                    save_favorites(updated)
+                    update_comment(username, url, new_comment)
                     st.toast("Note saved!", icon="✅")
 
             st.divider()
 
 
-def page_profile() -> None:
-    """Profile page: structured form that personalises scoring and AI insights."""
+def page_profile(username: str) -> None:
+    """Profile page — per-user settings that shape AI scoring."""
     st.title("Profile")
-    st.markdown(
-        "Your profile shapes how articles are scored and what insights the AI highlights. "
-        "Fill in what applies — skip what doesn't."
-    )
+    st.markdown("Your profile shapes how articles are scored and what insights the AI highlights.")
     st.info("Changes take effect after the next **Refresh now**.", icon="ℹ️")
     st.markdown("---")
 
-    profile = load_profile()
+    profile = load_profile(username)
     ts = profile.get("tech_stack", {})
 
     def _safe_default(value: list, options: list) -> list:
-        """Filter a list to only include values present in options."""
         return [v for v in value if v in options]
 
     with st.form("profile_form"):
-
-        # ── About You ────────────────────────────────────────────────────────
         st.subheader("About You")
         role = st.text_input("Your role", value=profile.get("role", ""))
         ab_col1, ab_col2 = st.columns(2)
@@ -525,7 +630,6 @@ def page_profile() -> None:
                 default=_safe_default(profile.get("market", []), MARKET_OPTIONS),
             )
 
-        # ── Tech Stack ───────────────────────────────────────────────────────
         st.markdown("---")
         st.subheader("Tech Stack")
         ts_col1, ts_col2 = st.columns(2)
@@ -552,7 +656,6 @@ def page_profile() -> None:
                 default=_safe_default(ts.get("frontend", []), TECH_FRONTEND_OPTIONS),
             )
 
-        # ── Client Domains ───────────────────────────────────────────────────
         st.markdown("---")
         st.subheader("Client Domains")
         client_domains = st.multiselect(
@@ -562,11 +665,9 @@ def page_profile() -> None:
             label_visibility="collapsed",
         )
 
-        # ── Active Projects ──────────────────────────────────────────────────
         st.markdown("---")
         st.subheader("Active Projects")
         st.caption("Up to 3 projects. These help the AI tailor insights to what you're actually building.")
-
         raw_projects = profile.get("projects", [{}, {}, {}])
         while len(raw_projects) < 3:
             raw_projects.append({})
@@ -574,59 +675,30 @@ def page_profile() -> None:
         saved_projects = []
         for idx in range(3):
             p = raw_projects[idx]
-            label = f"Project {idx + 1}"
-            with st.expander(label, expanded=bool(p.get("name"))):
-                p_name = st.text_input(
-                    "Name", value=p.get("name", ""), key=f"p_name_{idx}",
-                    placeholder="e.g. A-MATCH",
-                )
-                p_desc = st.text_input(
-                    "One-line description", value=p.get("description", ""), key=f"p_desc_{idx}",
-                    placeholder="What does it do and for whom?",
-                )
-                p_tech = st.multiselect(
-                    "Key technologies",
-                    options=PROJECT_TECH_OPTIONS,
-                    default=_safe_default(p.get("tech", []), PROJECT_TECH_OPTIONS),
-                    key=f"p_tech_{idx}",
-                )
+            with st.expander(f"Project {idx + 1}", expanded=bool(p.get("name"))):
+                p_name = st.text_input("Name", value=p.get("name", ""), key=f"p_name_{idx}", placeholder="e.g. A-MATCH")
+                p_desc = st.text_input("One-line description", value=p.get("description", ""), key=f"p_desc_{idx}", placeholder="What does it do and for whom?")
+                p_tech = st.multiselect("Key technologies", options=PROJECT_TECH_OPTIONS, default=_safe_default(p.get("tech", []), PROJECT_TECH_OPTIONS), key=f"p_tech_{idx}")
             saved_projects.append({"name": p_name, "description": p_desc, "tech": p_tech})
 
-        # ── Topics ───────────────────────────────────────────────────────────
         st.markdown("---")
         st.subheader("Topics")
         tp_col1, tp_col2 = st.columns(2)
         with tp_col1:
             st.markdown("**Prioritise**")
-            interests = st.multiselect(
-                "prioritise",
-                options=INTEREST_OPTIONS,
-                default=_safe_default(profile.get("interests", []), INTEREST_OPTIONS),
-                label_visibility="collapsed",
-            )
+            interests = st.multiselect("prioritise", options=INTEREST_OPTIONS, default=_safe_default(profile.get("interests", []), INTEREST_OPTIONS), label_visibility="collapsed")
         with tp_col2:
             st.markdown("**Exclude**")
-            exclusions = st.multiselect(
-                "exclude",
-                options=EXCLUSION_OPTIONS,
-                default=_safe_default(profile.get("exclusions", []), EXCLUSION_OPTIONS),
-                label_visibility="collapsed",
-            )
+            exclusions = st.multiselect("exclude", options=EXCLUSION_OPTIONS, default=_safe_default(profile.get("exclusions", []), EXCLUSION_OPTIONS), label_visibility="collapsed")
 
-        # ── Filtering ────────────────────────────────────────────────────────
         st.markdown("---")
         st.subheader("Filtering")
-        min_score = st.slider(
-            "Minimum relevance score",
-            min_value=5, max_value=9,
-            value=profile.get("min_score", 7),
-            help="Articles scoring below this are excluded from the digest.",
-        )
+        min_score = st.slider("Minimum relevance score", min_value=5, max_value=9, value=profile.get("min_score", 7))
 
         submitted = st.form_submit_button("Save Profile", use_container_width=True, type="primary")
 
     if submitted:
-        new_profile = {
+        save_profile(username, {
             "role":         role,
             "company_type": company_type,
             "market":       market,
@@ -641,142 +713,82 @@ def page_profile() -> None:
             "interests": interests,
             "exclusions":exclusions,
             "min_score": min_score,
-        }
-        save_profile(new_profile)
+        })
         st.success("Profile saved.")
         st.info("Click **Refresh now** in the sidebar to apply your updated profile to the next digest.")
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
-def check_password() -> bool:
-    """Show a password gate and return True only when the correct password is entered.
-    The expected password is read from the APP_PASSWORD environment variable.
-    If APP_PASSWORD is not set the gate is skipped (useful for local dev)."""
-    expected = os.environ.get("APP_PASSWORD", "")
-    if not expected:
-        return True  # no password configured — open access (local dev)
-
-    if st.session_state.get("authenticated"):
-        return True
-
-    st.set_page_config(page_title="GenAI Radar", layout="centered", page_icon="📡")
-    st.title("GenAI Radar")
-    st.markdown("---")
-    pwd = st.text_input("Password", type="password", placeholder="Enter password to continue")
-    if st.button("Sign in", use_container_width=True):
-        if pwd == expected:
-            st.session_state.authenticated = True
-            st.rerun()
-        else:
-            st.error("Incorrect password.")
-    return False
-
-
 def main() -> None:
-    if not check_password():
+    if not check_login():
         st.stop()
 
     st.set_page_config(page_title="GenAI Radar", layout="wide", page_icon="📡")
 
-    # Session state defaults — preserved across reruns
+    username = st.session_state.username
+
     defaults: dict = {
-        "page":         "radar",
-        "filter_cats":  ALL_CATEGORIES.copy(),
+        "page":           "radar",
+        "filter_cats":    ALL_CATEGORIES.copy(),
         "filter_domains": ALL_DOMAINS.copy(),
-        "filter_sort":  "Relevance",
-        "profile_saved": False,
+        "filter_sort":    "Relevance",
     }
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
 
     digest    = load_digest()
-    favorites = load_favorites()
+    favorites = load_favorites(username)
     fav_count = len(favorites.get("favorites", []))
 
     # ── Sidebar ───────────────────────────────────────────────────────────────
     with st.sidebar:
         st.title("GenAI Radar")
+        st.caption(f"Signed in as **{username}**")
         st.markdown("---")
 
-        # Page navigation — three buttons, active one is disabled
+        # Navigation
         nav_col1, nav_col2, nav_col3 = st.columns(3)
         with nav_col1:
-            if st.button(
-                "Radar",
-                use_container_width=True,
-                disabled=(st.session_state.page == "radar"),
-            ):
+            if st.button("Radar", use_container_width=True, disabled=(st.session_state.page == "radar")):
                 st.session_state.page = "radar"
                 st.rerun()
         with nav_col2:
             saved_label = f"Saved ({fav_count})" if fav_count else "Saved"
-            if st.button(
-                saved_label,
-                use_container_width=True,
-                disabled=(st.session_state.page == "saved"),
-            ):
+            if st.button(saved_label, use_container_width=True, disabled=(st.session_state.page == "saved")):
                 st.session_state.page = "saved"
                 st.rerun()
         with nav_col3:
-            if st.button(
-                "Profile",
-                use_container_width=True,
-                disabled=(st.session_state.page == "profile"),
-            ):
+            if st.button("Profile", use_container_width=True, disabled=(st.session_state.page == "profile")):
                 st.session_state.page = "profile"
                 st.rerun()
 
+        st.markdown("---")
 
-        # Filters — only shown on Radar page
+        # Filters
         if st.session_state.page == "radar" and digest is not None:
             st.markdown("**Filters**")
-            st.multiselect(
-                "Category",
-                options=ALL_CATEGORIES,
-                key="filter_cats",
-                format_func=lambda c: f"{CATEGORY_ICONS.get(c, '')} {c}",
-            )
-            st.multiselect(
-                "Domain",
-                options=ALL_DOMAINS,
-                key="filter_domains",
-                format_func=lambda d: DOMAIN_LABELS.get(d, d),
-            )
-            st.radio(
-                "Sort by",
-                options=["Relevance", "Category"],
-                key="filter_sort",
-            )
+            st.multiselect("Category", options=ALL_CATEGORIES, key="filter_cats", format_func=lambda c: f"{CATEGORY_ICONS.get(c, '')} {c}")
+            st.multiselect("Domain",   options=ALL_DOMAINS,    key="filter_domains", format_func=lambda d: DOMAIN_LABELS.get(d, d))
+            st.radio("Sort by", options=["Relevance", "Category"], key="filter_sort")
             st.markdown("---")
 
-        # Refresh + meta
+        # Refresh
         if st.button("Refresh now", use_container_width=True):
             token = os.environ.get("GITHUB_TOKEN", "")
             repo  = os.environ.get("GITHUB_REPO", "")
             if not token or not repo:
-                st.session_state["refresh_msg"] = (
-                    "warning",
-                    "GITHUB_TOKEN and GITHUB_REPO are not set in Streamlit secrets — "
-                    "add them to enable this button.",
-                )
+                st.session_state["refresh_msg"] = ("warning", "GITHUB_TOKEN and GITHUB_REPO not set in Streamlit secrets.")
             else:
                 with st.spinner("Triggering GitHub Actions workflow…"):
                     success, message = trigger_github_action()
                 st.session_state["refresh_msg"] = ("ok" if success else "error", message)
 
-        # Show persisted refresh status (survives rerenders)
         msg = st.session_state.get("refresh_msg")
         if msg:
             kind, text = msg
-            if kind == "ok":
-                st.success(text)
-            elif kind == "warning":
-                st.warning(text)
-            else:
-                st.error(text)
-            st.rerun()
+            {"ok": st.success, "warning": st.warning, "error": st.error}[kind](text)
 
         if digest:
             date_str, time_str = format_timestamp(digest["generated_at"])
@@ -785,16 +797,21 @@ def main() -> None:
             st.caption("No digest yet")
         st.caption(f"Monitoring {TOTAL_SOURCES} sources")
 
-    # ── Route to page ─────────────────────────────────────────────────────────
+        st.markdown("---")
+        if st.button("Sign out", use_container_width=True):
+            for k in ["username", "page", "filter_cats", "filter_domains", "filter_sort", "refresh_msg"]:
+                st.session_state.pop(k, None)
+            st.rerun()
+
+    # ── Route ─────────────────────────────────────────────────────────────────
     if st.session_state.page == "saved":
-        page_saved(favorites)
+        page_saved(username)
         return
 
     if st.session_state.page == "profile":
-        page_profile()
+        page_profile(username)
         return
 
-    # Radar page
     st.title("📡 GenAI Radar")
     st.markdown("*Your daily AI news digest — filtered for what actually matters to your work.*")
 
@@ -807,7 +824,7 @@ def main() -> None:
         )
         return
 
-    page_radar(digest, favorites)
+    page_radar(digest, username)
 
 
 if __name__ == "__main__":
