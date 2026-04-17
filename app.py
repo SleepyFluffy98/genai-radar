@@ -746,7 +746,6 @@ def main() -> None:
     with st.sidebar:
         st.title("GenAI Radar")
         st.caption(f"Signed in as **{username}**")
-        st.markdown("---")
 
         # Navigation
         nav_col1, nav_col2, nav_col3 = st.columns(3)
@@ -764,15 +763,12 @@ def main() -> None:
                 st.session_state.page = "profile"
                 st.rerun()
 
-        st.markdown("---")
-
         # Filters
         if st.session_state.page == "radar" and digest is not None:
             st.markdown("**Filters**")
             st.multiselect("Category", options=ALL_CATEGORIES, key="filter_cats", format_func=lambda c: f"{CATEGORY_ICONS.get(c, '')} {c}")
             st.multiselect("Domain",   options=ALL_DOMAINS,    key="filter_domains", format_func=lambda d: DOMAIN_LABELS.get(d, d))
             st.radio("Sort by", options=["Relevance", "Category"], key="filter_sort")
-            st.markdown("---")
 
         # Refresh
         if st.button("Refresh now", use_container_width=True):
