@@ -23,10 +23,15 @@ RSS_SOURCES = {
     "LangChain Blog":                "https://blog.langchain.dev/rss/",
     "Microsoft AI Blog":             "https://blogs.microsoft.com/ai/feed/",
     "The Batch":                     "https://www.deeplearning.ai/the-batch/feed/",
-    # Insurance & InsurTech
+    # Insurance & InsurTech — use cases, sales, implementation
     "The Digital Insurer":           "https://the-digital-insurer.com/feed",
     "Insurance Innovation Reporter": "https://iireporter.com/feed",
     "Zelros":                        "https://zelros.com/feed",
+    "InsurTech Insights":            "https://www.insurtechinsights.com/feed/",
+    "Accenture Insurance Blog":      "https://insuranceblog.accenture.com/feed",
+    "Insurance Thought Leadership":  "https://www.insurancethoughtleadership.com/rss.xml",
+    # Google News: targeted search for GenAI in insurance sales (DACH/EU angle)
+    "Google News — AI Insurance":    "https://news.google.com/rss/search?q=generative+AI+insurance+sales&hl=en&gl=DE&ceid=DE:en",
     # Finance & FinTech AI
     "VentureBeat AI":                "https://venturebeat.com/category/ai/feed",
     "MarkTechPost":                  "https://marktechpost.com/feed",
@@ -65,7 +70,9 @@ They CARE about:
 - Azure AI and Microsoft AI product updates
 - EU AI Act and DORA compliance developments (Germany/DACH market)
 - Real production use cases and implementation patterns — especially in finance, insurance, HR
-- InsurTech and FinTech AI adoption stories with concrete outcomes
+- InsurTech and FinTech AI adoption stories with concrete outcomes, especially in insurance sales
+- GenAI use cases in insurance sales: lead scoring, policy recommendation, claims pre-screening, agent copilots
+- Insurer digital transformation stories with measurable sales or operational outcomes
 - AI in HR: candidate matching, workforce analytics, skills intelligence
 - Data science tooling, LLM evaluation frameworks, observability
 - Practical tutorials they can apply to current projects

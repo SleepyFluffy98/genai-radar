@@ -36,7 +36,7 @@ CATEGORY_ICONS = {
     "tutorial":       "📚",
 }
 
-TOTAL_SOURCES = 23
+TOTAL_SOURCES = 27
 
 # ── Profile form option lists ─────────────────────────────────────────────────
 
