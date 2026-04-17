@@ -373,15 +373,15 @@ def page_radar(digest: dict, favorites: dict) -> None:
         st.caption("Hit **Refresh now** to see full scan statistics.")
 
     # ── Apply filters from sidebar session state ──────────────────────────────
-    cat_filter    = st.session_state.selected_categories or ALL_CATEGORIES
-    domain_filter = st.session_state.selected_domains    or ALL_DOMAINS
+    cat_filter    = st.session_state.get("filter_cats")    or ALL_CATEGORIES
+    domain_filter = st.session_state.get("filter_domains") or ALL_DOMAINS
 
     filtered = [
         a for a in articles
         if a["category"] in cat_filter and a["domain"] in domain_filter
     ]
 
-    if st.session_state.sort_by == "Relevance":
+    if st.session_state.get("filter_sort", "Relevance") == "Relevance":
         filtered.sort(key=lambda a: a["relevance_score"], reverse=True)
     else:
         filtered.sort(key=lambda a: (a["category"], -a["relevance_score"]))
@@ -681,11 +681,11 @@ def main() -> None:
 
     # Session state defaults — preserved across reruns
     defaults: dict = {
-        "page":                "radar",
-        "selected_categories": ALL_CATEGORIES.copy(),
-        "selected_domains":    ALL_DOMAINS.copy(),
-        "sort_by":             "Relevance",
-        "profile_saved":       False,
+        "page":         "radar",
+        "filter_cats":  ALL_CATEGORIES.copy(),
+        "filter_domains": ALL_DOMAINS.copy(),
+        "filter_sort":  "Relevance",
+        "profile_saved": False,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -732,22 +732,22 @@ def main() -> None:
         # Filters — only shown on Radar page
         if st.session_state.page == "radar" and digest is not None:
             st.markdown("**Filters**")
-            st.session_state.selected_categories = st.multiselect(
+            st.multiselect(
                 "Category",
                 options=ALL_CATEGORIES,
-                default=st.session_state.selected_categories,
+                key="filter_cats",
                 format_func=lambda c: f"{CATEGORY_ICONS.get(c, '')} {c}",
             )
-            st.session_state.selected_domains = st.multiselect(
+            st.multiselect(
                 "Domain",
                 options=ALL_DOMAINS,
-                default=st.session_state.selected_domains,
+                key="filter_domains",
                 format_func=lambda d: DOMAIN_LABELS.get(d, d),
             )
-            st.session_state.sort_by = st.radio(
+            st.radio(
                 "Sort by",
                 options=["Relevance", "Category"],
-                index=["Relevance", "Category"].index(st.session_state.sort_by),
+                key="filter_sort",
             )
             st.markdown("---")
 
