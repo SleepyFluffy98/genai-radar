@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-08-29T12:01:21.983733+00:00",
-  "article_count": 27,
-  "raw_count": 80,
-  "dedup_count": 80,
+  "generated_at": "2026-08-30T10:58:34.604808+00:00",
+  "article_count": 28,
+  "raw_count": 90,
+  "dedup_count": 90,
   "articles": [
     {
       "title": "Socotra becomes first insurance core to publish agent skills",
       "url": "https://www.insurtechinsights.com/socotra-becomes-first-insurance-core-to-publish-agent-skills/",
       "source": "InsurTech Insights",
       "relevance_score": 9,
-      "reason": "Socotra's release of agent skills enables practical, reusable AI workflows for insurance, directly supporting agentic and RAG implementations in a core industry domain.",
-      "summary": "Socotra has published Socotra Skills, a set of reusable agent instructions and workflows for insurance core systems, allowing integration with leading AI agents like Claude and Codex. This enables insurers to build and automate insurance workflows using GenAI, with a focus on production-ready, interoperable solutions. The release is highly relevant for consultants building agentic pipelines and RAG systems for insurance clients, offering concrete architecture patterns and integration points.",
+      "reason": "This article details a production-ready, reusable agentic workflow for insurance core systems, directly relevant for building agentic pipelines and RAG systems in the insurance domain.",
+      "summary": "Socotra's public release of Socotra Skills enables insurers to integrate AI agents with their core platform using standardized workflows and instructions. This unlocks practical, agentic automation for insurance product creation and workflow execution, supporting multiple agent frameworks. The consultant can leverage these skills to accelerate insurance AI deployments and benchmark agent integration patterns.",
       "actionable_insights": [
-        "Evaluate Socotra Skills for integration into existing insurance agentic workflows and RAG pipelines.",
-        "Assess compatibility of Socotra Skills with Azure OpenAI and LangGraph for client deployments.",
-        "Leverage Socotra's published workflows as reference architecture for insurance sales, claims, and policy recommendation use cases."
+        "Review Socotra Skills documentation to assess integration with existing agentic workflows and RAG pipelines.",
+        "Evaluate compatibility of Socotra Skills with Azure OpenAI and LangGraph for insurance client projects.",
+        "Use Socotra's published agent skills as a reference architecture for building reusable insurance workflow modules."
       ],
       "category": "implementation",
       "domain": "insurance",
@@ -25,14 +25,30 @@
       "url": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxQc3pXU0o1bUpmdkJMRk9zR2Q2Wm1ucXZ0X3dTRUJ4T2xxSFNvbVRZaGV0d3RUNlJKUTRtaldvTXMzeURmVHlCUFZpTFpNc1Y1cm5QMl84ZGZpYXBiV2FoUHFmRGJDSUp1Y1lqbnpWTUcxRXNXT0NhaGZxZW5IaEx0M09ZejlBR3BKYXNibUFPMG5KOFpXaC1KRFYtdVk5Z0p0N3g1YnkybWFHM0d4X0luVmxzUm8xM2VxemNDMEFMSUlYUWpnN0pPbm5kV1h2Y0s2WGlVR1NqRHVNN1NoZ1RhNmZiSU01VDNITGxSXzdrR19zOGt3Y2h0cQ?oc=5",
       "source": "Google News — AI Insurance",
       "relevance_score": 9,
-      "reason": "This article details a production deployment of an AI platform for insurance agents, offering concrete use cases and measurable outcomes relevant to insurance sales workflows.",
-      "summary": "Neptune's Atlas+ platform leverages AI to enhance insurance agent productivity, focusing on lead scoring, policy recommendations, and agent copilots. The article highlights real-world adoption and operational improvements, providing actionable insights for consultants building similar agentic workflows in insurance. It offers a client-ready business case for GenAI in insurance sales, aligning with current expansion goals.",
+      "reason": "This article details a production deployment of an AI platform for insurance agents, offering actionable insights into agentic workflows and measurable sales outcomes in the insurance domain.",
+      "summary": "Neptune's Atlas+ platform leverages AI to enhance insurance agent productivity, focusing on lead scoring, policy recommendations, and agent copilots. The article highlights real-world adoption, operational improvements, and sales impact, making it highly relevant for consultants building agentic workflows and RAG systems for insurance clients. It provides concrete examples of GenAI use cases and measurable business outcomes in insurance sales.",
       "actionable_insights": [
-        "Analyze Atlas+ features for potential integration or benchmarking in your own insurance agent copilots.",
-        "Use the deployment outcomes as reference points when pitching GenAI solutions to insurance clients.",
-        "Extract architecture patterns or workflow enhancements for your multi-agent pipelines targeting insurance sales."
+        "Analyze Atlas+ architecture for reusable agentic workflow patterns in insurance sales.",
+        "Benchmark operational and sales outcomes to inform client business cases for GenAI adoption.",
+        "Identify features (lead scoring, policy recommendation, agent copilots) to prioritize in upcoming insurance client projects."
       ],
       "category": "industry",
+      "domain": "insurance",
+      "worth_reading": true
+    },
+    {
+      "title": "Sixfold, PS Advisory Connect AI Underwriting to Salesforce",
+      "url": "https://iireporter.com/sixfold-ps-advisory-connect-ai-underwriting-to-salesforce/",
+      "source": "Insurance Innovation Reporter",
+      "relevance_score": 8,
+      "reason": "This article details a production integration of AI underwriting into Salesforce for insurance workflows, highlighting a practical, enterprise-grade use case relevant to agentic workflow design.",
+      "summary": "Sixfold and PS Advisory have enabled AI-powered underwriting intelligence to be directly accessible within Salesforce via a MuleSoft connector, streamlining insurance carrier and MGA workflows. This demonstrates a real-world deployment of GenAI in insurance, focusing on operational efficiency and workflow integration. The implementation offers insights into connecting agentic AI systems with enterprise platforms, which is directly applicable to current client projects.",
+      "actionable_insights": [
+        "Evaluate the MuleSoft connector approach for integrating agentic AI workflows into existing enterprise platforms like Salesforce.",
+        "Assess the operational impact and adoption metrics from this deployment to inform insurance client proposals.",
+        "Explore replicating similar AI underwriting integrations for insurance clients using Azure OpenAI and LangGraph."
+      ],
+      "category": "implementation",
       "domain": "insurance",
       "worth_reading": true
     },
@@ -41,12 +57,12 @@
       "url": "https://www.zelros.com/2025/06/06/webinar-what-are-the-most-impactful-and-sought-after-use-cases-for-agentic-ai-in-banking-and-insurance-operations/",
       "source": "Zelros",
       "relevance_score": 8,
-      "reason": "The webinar focuses on agentic AI use cases in banking and insurance, directly aligning with the consultant's client domains and interest in practical, production-ready applications.",
-      "summary": "This webinar highlights real-world agentic AI deployments in banking and insurance operations, discussing impactful use cases such as lead scoring, policy recommendation, and claims pre-screening. It offers insights into operational improvements and measurable outcomes from AI adoption in these sectors. The content is likely to include implementation patterns and lessons learned relevant to enterprise projects.",
+      "reason": "This webinar directly addresses agentic AI use cases in banking and insurance, the consultant's primary client domains, and may provide actionable implementation patterns or business cases.",
+      "summary": "The webinar promises to cover impactful agentic AI applications in banking and insurance operations, likely including real-world deployment examples and operational outcomes. It may highlight use cases such as lead scoring, policy recommendation, claims pre-screening, and agent copilots, which are highly relevant for current and expanding client projects. While the excerpt lacks detail, the topic aligns closely with the consultant's focus on production use cases and measurable results.",
       "actionable_insights": [
-        "Identify and benchmark agentic AI use cases for banking and insurance clients.",
-        "Extract implementation patterns and operational metrics for client presentations.",
-        "Apply lessons learned from production deployments to current workflow designs."
+        "Identify new agentic AI use cases in banking and insurance to pitch to clients.",
+        "Extract implementation patterns or architecture ideas for agent workflows.",
+        "Benchmark operational outcomes or ROI from discussed deployments for client proposals."
       ],
       "category": "industry",
       "domain": "finance",
@@ -58,11 +74,11 @@
       "source": "Accenture Insurance Blog",
       "relevance_score": 8,
       "reason": "The article outlines actionable strategies for deploying agentic AI in health insurance claims, directly relevant to current and expanding client domains.",
-      "summary": "This blog details a practical roadmap for insurers to modernize health claims management using agentic AI, emphasizing holistic approaches beyond technology adoption. It highlights key success factors and implementation patterns that can drive measurable improvements in claims processing. The content is directly applicable for consultants working on insurance AI workflows and agentic systems.",
+      "summary": "This blog details a practical roadmap for insurers to modernize health claims management using agentic AI, emphasizing holistic approaches beyond technology adoption. It highlights success factors and implementation patterns that can drive measurable outcomes in claims processing. The content is directly applicable for consultants working on insurance AI workflows and agentic systems.",
       "actionable_insights": [
         "Review and adapt the A.R.T. framework for structuring agentic AI deployments in health claims workflows.",
-        "Identify measurable KPIs for claims modernization projects to track ROI and operational impact.",
-        "Leverage the outlined roadmap to inform client proposals and architecture decisions for insurance claims automation."
+        "Identify key operational metrics to track ROI and adoption in insurance claims modernization projects.",
+        "Leverage the outlined roadmap to inform client proposals and architecture decisions for insurance AI solutions."
       ],
       "category": "implementation",
       "domain": "insurance",
@@ -73,12 +89,12 @@
       "url": "https://news.google.com/rss/articles/CBMi6wFBVV95cUxQX0YtMTB5MEVoWmFTUmxPSnBJaFh3d05yMVZpZzhSZ3VPVzFBSThaUXY1WTFUUnVRQXdYeHczS0RBNHE1YTU1QVFxbHdxYjNULXQ4alM1WUJ1M2tGVlRUZmhyb2FWWEE5V29iR05MZTYyNExRVUx3eWNMdXNvNVhhTFpYNVp4VGhzU1RsamxlTk9xU1VlQ1dHeEh2TWo0eVBfcmJpd2VBU0ZLbTVpdE1FeVdqRHplSUJKbzd1dTY4RTlzckM5bnlLSkQ0dUNZMzRVejREZmhMWTVjVHlEd2JQaEFrdDFDdHRSSDY0?oc=5",
       "source": "Google News — AI Insurance",
       "relevance_score": 8,
-      "reason": "This article likely details practical AI applications across the insurance value chain, with Microsoft-specific tech and implementation patterns relevant to Azure AI and enterprise workflows.",
-      "summary": "The article discusses how AI is being used to optimize processes throughout the insurance lifecycle, from sales and underwriting to claims and customer service, with a focus on Microsoft technologies. It highlights real-world use cases and integration strategies that can inform the consultant's work with insurance clients, especially regarding digital transformation and operational improvements. The content is likely to include actionable architecture patterns and measurable outcomes, making it valuable for current and future insurance projects.",
+      "reason": "This article likely details practical AI applications across the insurance value chain, with a Microsoft/Azure focus directly relevant to the consultant's tech stack and client expansion goals.",
+      "summary": "The article discusses how AI is being deployed across insurance operations, highlighting use cases such as claims processing, policy recommendation, and sales enablement. It emphasizes Microsoft technologies, which aligns with the consultant's Azure OpenAI and MS365 stack. The content may include real-world implementation patterns and measurable outcomes, useful for client conversations and solution design.",
       "actionable_insights": [
-        "Review Microsoft AI integration patterns for insurance workflows to inform Azure-based solution design.",
-        "Identify specific use cases (e.g., claims pre-screening, policy recommendation) with measurable business impact for client proposals.",
-        "Leverage examples of end-to-end AI deployments to refine agentic workflow and RAG pipeline architectures."
+        "Identify Microsoft Azure AI tools and frameworks used in insurance deployments for potential integration.",
+        "Extract specific insurance use cases (claims pre-screening, lead scoring) to pitch to current or prospective clients.",
+        "Review architecture patterns or operational metrics shared for benchmarking and improving existing agentic workflows."
       ],
       "category": "industry",
       "domain": "insurance",
@@ -89,12 +105,12 @@
       "url": "https://venturebeat.com/ai/enterprise-ais-real-risk-isnt-autonomous-agents-its-the-complexity-between-them",
       "source": "VentureBeat AI",
       "relevance_score": 8,
-      "reason": "The article addresses the practical challenges of managing agent complexity in enterprise multi-agent workflows, directly relevant to the consultant's current projects.",
-      "summary": "This article highlights the operational risks and failure modes arising from deploying multiple AI agents in enterprise environments, especially when agents interact with legacy systems and each other. It discusses the importance of robust orchestration, monitoring, and error handling to prevent cascading failures and maintain reliability. The focus is on real-world implementation issues rather than theoretical agent autonomy.",
+      "reason": "The article highlights practical risks and architectural challenges in deploying multi-agent workflows, directly relevant to the consultant's enterprise projects.",
+      "summary": "This article discusses the hidden complexity in orchestrating multiple AI agents within enterprise environments, emphasizing the operational risks when agents interact with legacy systems and each other. It warns that agentic workflows can fail not due to individual agent autonomy, but because of unpredictable inter-agent dependencies and API calls. The piece offers actionable perspectives for consultants designing robust, scalable agent pipelines.",
       "actionable_insights": [
-        "Review and strengthen orchestration and monitoring strategies for multi-agent pipelines to mitigate complexity risks.",
-        "Audit API and inter-agent communication patterns for potential failure points in current deployments.",
-        "Develop or adopt frameworks for error handling and observability in agentic workflows, especially for production systems."
+        "Audit and map inter-agent dependencies in current workflows to identify potential failure points.",
+        "Implement monitoring and observability tools to track agent interactions and API usage.",
+        "Review enterprise application interfaces for compatibility and resilience against agent-driven automation."
       ],
       "category": "implementation",
       "domain": "general",
@@ -105,12 +121,12 @@
       "url": "https://venturebeat.com/security/when-agents-act-on-their-own-governance-has-to-live-in-the-data-layer",
       "source": "VentureBeat AI",
       "relevance_score": 8,
-      "reason": "Agent governance at the data layer is critical for secure, compliant enterprise AI workflows, especially as agent autonomy increases.",
-      "summary": "The article discusses the architectural challenge of enforcing governance when AI agents act autonomously, emphasizing the need for robust controls at the data layer. It highlights risks of unauthorized actions and the importance of integrating data access policies directly into agent workflows. This is highly relevant for consultants building agentic pipelines in regulated domains like finance and insurance, where compliance and data security are paramount.",
+      "reason": "Agent governance at the data layer is a critical concern for enterprise GenAI workflows, especially as agent autonomy increases in regulated domains.",
+      "summary": "The article discusses the architectural challenge of enforcing agent governance at the data layer as AI agents gain more autonomy, highlighting the need for robust controls to prevent unauthorized actions. It emphasizes practical approaches for integrating governance mechanisms directly into enterprise data infrastructure, which is highly relevant for agentic workflows in finance, insurance, and HR. The focus on actionable governance aligns with the consultant's priorities for secure, compliant, and scalable agent deployments.",
       "actionable_insights": [
-        "Review and strengthen data access controls in agent workflows to prevent unauthorized actions.",
-        "Integrate governance mechanisms directly into the data layer, not just at the application or agent level.",
-        "Audit current agentic pipelines for compliance gaps, especially in finance and insurance deployments."
+        "Review and strengthen data-layer access controls for agent workflows to prevent unauthorized actions.",
+        "Integrate governance checks into agent orchestration pipelines, especially for sensitive enterprise data.",
+        "Evaluate current architecture for gaps in agent authorization and compliance, particularly in regulated domains."
       ],
       "category": "implementation",
       "domain": "general",
@@ -122,11 +138,27 @@
       "source": "KDnuggets",
       "relevance_score": 8,
       "reason": "Optimizing LLMs for latency and cost is directly relevant to enterprise deployments, especially for agentic workflows and RAG systems in production.",
-      "summary": "The article provides a practical overview of quantization and pruning techniques for reducing LLM resource consumption, including hands-on examples used in real-world deployments. It highlights how skipping these optimizations can lead to higher operational costs and slower inference, which is critical for enterprise-scale applications. The methods discussed are immediately applicable to Azure OpenAI and containerized environments, supporting cost control and performance improvements.",
+      "summary": "The article provides a practical overview of quantization and pruning techniques for reducing LLM resource consumption, with hands-on examples used in real-world deployments. It highlights measurable impacts on latency and cost, which are critical for scaling GenAI solutions in enterprise environments. The methods discussed can be applied to current Azure OpenAI and containerized workflows to improve efficiency.",
       "actionable_insights": [
-        "Evaluate current LLM deployments for quantization and pruning opportunities to reduce Azure compute costs.",
-        "Apply the article's step-by-step methods to optimize agentic workflows and RAG pipelines for lower latency.",
-        "Benchmark before-and-after performance to quantify operational savings and justify architecture decisions."
+        "Evaluate current LLM deployments for potential quantization and pruning to reduce Azure compute costs.",
+        "Test the five production-ready methods described to benchmark latency improvements in agentic pipelines.",
+        "Incorporate leaner LLMs into RAG and multi-agent architectures to enable more scalable client solutions."
+      ],
+      "category": "implementation",
+      "domain": "general",
+      "worth_reading": true
+    },
+    {
+      "title": "RAG Is Not the Whole Toolkit: The NLP Techniques Real Problems Still Need",
+      "url": "https://towardsdatascience.com/rag-is-not-the-whole-toolkit-the-nlp-techniques-real-problems-still-need/",
+      "source": "Towards Data Science",
+      "relevance_score": 8,
+      "reason": "This article highlights practical NLP techniques beyond RAG that can optimize enterprise document workflows, directly relevant to agentic and RAG system design for clients.",
+      "summary": "The article discusses how relying solely on RAG for enterprise document intelligence can be suboptimal, and outlines alternative NLP methods (classification, text matching, table reading, OCR cleaning) that solve specific business problems more efficiently. It emphasizes the importance of engineering workflows that select the right technique for each task, which is crucial for building robust, cost-effective agentic pipelines. The insights are immediately applicable to improving current and future client solutions in finance, insurance, and HR.",
+      "actionable_insights": [
+        "Audit current RAG pipelines to identify tasks better served by classification or text matching.",
+        "Integrate table extraction and OCR cleaning modules into document processing workflows for improved accuracy.",
+        "Develop a decision framework for selecting NLP techniques based on task requirements and cost."
       ],
       "category": "implementation",
       "domain": "general",
@@ -138,29 +170,13 @@
       "source": "Towards Data Science",
       "relevance_score": 8,
       "reason": "Optimizing human-in-the-loop workflows is critical for scaling agentic systems in enterprise environments without sacrificing throughput.",
-      "summary": "The article details practical strategies for selectively routing human attention in agentic workflows, reducing unnecessary manual review and maintaining high throughput. It discusses how to implement targeted human-in-the-loop interventions, which is directly relevant for consultants building multi-agent pipelines for enterprise clients. The focus on balancing automation and oversight aligns with production needs in finance, insurance, and HR domains.",
+      "summary": "The article details practical strategies for selectively routing human attention in agentic workflows, reducing unnecessary manual reviews while maintaining quality. It discusses how to implement targeted human-in-the-loop checkpoints, which is directly relevant for consultants building multi-agent pipelines for enterprise clients. The focus on throughput and efficiency aligns with production needs in finance, insurance, and HR domains.",
       "actionable_insights": [
-        "Adopt selective review mechanisms to minimize human bottlenecks in agent workflows.",
-        "Integrate dynamic routing logic to prioritize human attention where risk or uncertainty is highest.",
-        "Benchmark throughput improvements after implementing targeted human-in-the-loop strategies."
+        "Implement selective human review triggers based on agent confidence or risk scores.",
+        "Integrate dynamic routing logic into LangGraph or Azure agent workflows to minimize bottlenecks.",
+        "Monitor throughput and quality metrics to iteratively refine human-in-the-loop checkpoints."
       ],
       "category": "implementation",
-      "domain": "general",
-      "worth_reading": true
-    },
-    {
-      "title": "Connecting My LangGraph AI Agent to Postgres",
-      "url": "https://towardsdatascience.com/connecting-my-langgraph-ai-agent-to-postgres/",
-      "source": "Towards Data Science",
-      "relevance_score": 8,
-      "reason": "This article provides a practical tutorial for integrating LangGraph agents with Postgres, directly supporting agentic workflow implementation on the consultant's tech stack.",
-      "summary": "The article outlines step-by-step instructions for connecting a LangGraph AI agent to a Postgres database, including local and cloud deployment using Docker. It offers actionable guidance for backend integration, which is relevant for building enterprise-grade agentic workflows. While not domain-specific, the technical depth is immediately applicable to current projects involving LangGraph and Azure Container Apps.",
-      "actionable_insights": [
-        "Apply the Docker-based setup to streamline local development and testing of LangGraph agent backends.",
-        "Adapt the Postgres integration pattern for enterprise RAG or agentic workflows requiring persistent storage.",
-        "Use the cloud deployment instructions to accelerate production rollout of agentic solutions on Azure."
-      ],
-      "category": "tutorial",
       "domain": "general",
       "worth_reading": true
     },
@@ -170,9 +186,9 @@
       "source": "InfoQ AI/ML",
       "relevance_score": 8,
       "reason": "This article provides practical strategies for optimizing enterprise data architectures to support agentic workflows and RAG systems, directly relevant to the consultant's current projects.",
-      "summary": "Fabiane Nardon outlines how enterprise data can be structured for AI agents, focusing on balancing deterministic and LLM-driven logic for precision and cost efficiency. The presentation covers data mesh, semantic ontologies, and low-latency database setups to improve context window management and reduce token usage. These approaches are applicable to building scalable, secure, and efficient agentic pipelines in enterprise environments.",
+      "summary": "Fabiane Nardon outlines how enterprise data can be structured for efficient use by AI agents, focusing on balancing deterministic and LLM-driven logic. The presentation covers data mesh, semantic models, and low-latency architectures to minimize token usage and improve context window management. These approaches are applicable to building scalable, cost-effective agentic pipelines in transactional environments.",
       "actionable_insights": [
-        "Evaluate current data layer for opportunities to implement semantic ontologies and data mesh for improved retrieval and context management.",
+        "Evaluate current data layer for opportunities to implement semantic ontologies and data mesh patterns to improve retrieval and context management.",
         "Assess database architectures for low-latency access to support token-efficient RAG and agent workflows.",
         "Consider dynamic tool selection (MCP) to optimize cost and precision in multi-agent pipelines."
       ],
@@ -186,11 +202,11 @@
       "source": "Josh Bersin",
       "relevance_score": 8,
       "reason": "The article highlights real-world multi-agent AI deployments in HR, directly relevant to the consultant's internal mobility and talent management projects.",
-      "summary": "Eightfold and other vendors are launching multi-agent AI solutions for talent acquisition, including candidate and interview agents, targeting high-volume hiring. The article details how these agentic workflows are being applied in production HR environments, offering insights into architecture and adoption patterns. This is highly relevant for consultants building similar agentic pipelines and HR platforms, with potential lessons for implementation and measurable outcomes.",
+      "summary": "Eightfold and other vendors are launching multi-agent AI solutions for talent acquisition, including candidate and interview agents, targeting high-volume hiring. The article details how these systems orchestrate multiple agents to automate and optimize HR workflows, offering practical examples of agentic architectures in production. This provides valuable insight into current HR tech trends and implementation patterns that can inform the consultant's own platform development.",
       "actionable_insights": [
-        "Analyze Eightfold's candidate and interview agent architecture for potential integration or benchmarking against A-MATCH.",
-        "Review adoption and outcome metrics from these HR deployments to inform client pitches and internal roadmap.",
-        "Identify agent orchestration patterns that can be reused in enterprise HR workflows, especially for high-volume hiring scenarios."
+        "Analyze Eightfold's multi-agent architecture for potential integration or benchmarking against A-MATCH.",
+        "Evaluate the impact of agent orchestration on candidate matching and interview automation for enterprise HR clients.",
+        "Identify measurable outcomes (e.g., hiring speed, accuracy) to build business cases for agentic HR solutions."
       ],
       "category": "industry",
       "domain": "hr",
@@ -201,12 +217,12 @@
       "url": "https://emerj.com/risk-and-cost-governance-for-ai-agents-in-regulated-institutions/",
       "source": "Emerj AI Research",
       "relevance_score": 8,
-      "reason": "The article addresses governance and cost control for AI agent deployments in regulated finance and insurance environments, directly relevant to client projects.",
-      "summary": "This interview explores how regulated institutions are implementing AI agents with a focus on governance, auditability, and cost management. It highlights practical approaches to risk mitigation and compliance for production workflows. The discussion is grounded in real-world deployments, offering insights applicable to enterprise finance and insurance projects.",
+      "reason": "The article addresses governance, auditability, and cost control for AI agent deployments in regulated finance and insurance institutions, which are core concerns for enterprise GenAI implementations.",
+      "summary": "This interview explores how regulated institutions are managing risk, governance, and cost discipline when deploying AI agents in production workflows. It highlights practical approaches to auditability and control, with a focus on compliance and operational efficiency. The discussion is directly relevant to consultants building agentic workflows for finance and insurance clients.",
       "actionable_insights": [
-        "Review and adapt governance frameworks for AI agent workflows to ensure auditability and compliance.",
-        "Implement cost monitoring and control mechanisms for AI agent deployments in regulated environments.",
-        "Assess risk mitigation strategies for AI agent integration in finance and insurance workflows."
+        "Review and adapt governance frameworks for AI agent deployments to ensure auditability and compliance in regulated environments.",
+        "Implement cost monitoring and control mechanisms for AI workflows to align with institutional risk policies.",
+        "Leverage practical examples from the article to inform client conversations about risk reduction and operational discipline in GenAI projects."
       ],
       "category": "implementation",
       "domain": "finance",
@@ -217,12 +233,12 @@
       "url": "https://deepmind.google/blog/gemini-omni-1-1-flash-lets-you-build-with-more-control/",
       "source": "Google DeepMind",
       "relevance_score": 7,
-      "reason": "Gemini Omni 1.1 Flash introduces new model controls that could impact agentic workflow design and RAG system performance, relevant for evaluating alternatives to Azure OpenAI in enterprise projects.",
-      "summary": "Gemini Omni 1.1 Flash offers enhanced control over model behavior, including improved prompt management and output customization, which may benefit multi-agent orchestration and retrieval workflows. While not directly tied to Azure, its features could inform architecture decisions and benchmarking against GPT models. The update is relevant for consultants considering model selection and integration in finance, insurance, or HR use cases.",
+      "reason": "Gemini Omni 1.1 Flash introduces new model controls that may impact agentic workflow design and RAG system performance, relevant for evaluating alternatives to Azure OpenAI in enterprise projects.",
+      "summary": "Gemini Omni 1.1 Flash offers enhanced control over model behavior, including improved prompt management and output customization, which could benefit multi-agent orchestration and retrieval workflows. While not directly tied to Azure, its features may inform architecture decisions or competitive benchmarking for clients in finance, insurance, and HR. The update is practical for consultants considering model selection or integration in production pipelines.",
       "actionable_insights": [
-        "Benchmark Gemini Omni 1.1 Flash against current Azure OpenAI models for agentic workflow tasks.",
+        "Benchmark Gemini Omni 1.1 Flash against GPT-4 and Azure OpenAI for agentic workflow use cases.",
         "Evaluate new control features for potential integration into RAG pipelines or multi-agent setups.",
-        "Assess compatibility and compliance for enterprise deployments, especially in regulated domains."
+        "Assess compatibility and compliance for enterprise deployments, especially in regulated EU domains."
       ],
       "category": "models",
       "domain": "general",
@@ -237,8 +253,8 @@
       "summary": "Gemini 3.7 Flash introduces a faster, more efficient version of Google's Gemini model, with improved latency and throughput for enterprise-scale applications. While the consultant's stack is Azure-centric, understanding Gemini's capabilities is important for benchmarking and cross-model comparisons, especially for clients considering multi-cloud or best-of-breed LLM strategies. The release may influence architecture decisions and model selection for agentic workflows and RAG pipelines.",
       "actionable_insights": [
         "Benchmark Gemini 3.7 Flash against Azure OpenAI models for latency and accuracy in enterprise use cases.",
-        "Evaluate potential integration points for Gemini in multi-agent or RAG pipelines, especially for clients interested in multi-cloud solutions.",
-        "Monitor client interest in Gemini to inform future architecture and vendor selection discussions."
+        "Evaluate Gemini's suitability for multi-agent orchestration and RAG pipelines, especially for clients interested in multi-cloud options.",
+        "Monitor client interest in Gemini to inform future architecture and model selection discussions."
       ],
       "category": "models",
       "domain": "general",
@@ -249,12 +265,12 @@
       "url": "https://www.the-digital-insurer.com/tdi-awards-2025/insurer-transformation-showcase-award-winner-2025-aia/",
       "source": "The Digital Insurer",
       "relevance_score": 7,
-      "reason": "Highlights a real insurer digital transformation with competitive benchmarking, potentially offering actionable patterns for insurance client projects.",
-      "summary": "AIA won the Insurer Transformation category at the Digital Insurance Awards 2025, showcasing a successful digital transformation program. While details are limited, the article signals measurable outcomes and competitive approaches in insurance digitalization. This could inform best practices or benchmarks for GenAI deployments in insurance sales and operations.",
+      "reason": "This article highlights a real-world insurer digital transformation with competitive benchmarking, which is directly relevant for consultants seeking proven implementation patterns and outcomes in insurance.",
+      "summary": "AIA won the Insurer Transformation category at the World’s Digital Insurance Awards 2025, showcasing their successful digital transformation program. The article provides insight into how leading insurers are pitching and executing transformation initiatives, including competitive evaluation and Q&A. While details are limited, it signals measurable outcomes and industry benchmarks that can inform client conversations and solution design.",
       "actionable_insights": [
-        "Investigate AIA's transformation program for specific architecture or workflow patterns applicable to insurance clients.",
-        "Benchmark transformation outcomes (ROI, adoption) against current or planned insurance projects.",
-        "Identify competitive differentiators used by AIA to inform client pitches or solution design."
+        "Review AIA's transformation program for potential architecture patterns or KPIs to reference in client proposals.",
+        "Benchmark current insurance client projects against award-winning transformation outcomes for improvement opportunities.",
+        "Use competitive award results to support business cases for digital transformation in insurance sales and operations."
       ],
       "category": "industry",
       "domain": "insurance",
@@ -266,11 +282,11 @@
       "source": "Zelros",
       "relevance_score": 7,
       "reason": "The article introduces new agentic features for insurance and banking workflows, with a focus on compliance and customer experience, which aligns with the consultant's client domains and implementation interests.",
-      "summary": "Zelros' 'Sweet Garden' release adds a specialized agent for handling general conditions and upgrades the Magic Question feature, targeting efficiency and compliance in insurance and banking. While details are limited, the focus on agentic workflows and customer experience improvements is directly relevant to enterprise GenAI implementations. The article hints at practical enhancements but lacks deep technical or measured outcome specifics.",
+      "summary": "Zelros' 'Sweet Garden' release adds a specialized agent for handling general conditions and upgrades the Magic Question feature, targeting efficiency and compliance in insurance and banking. While details are limited, the focus on agentic workflows and customer experience improvements is directly relevant to enterprise deployments. The features may offer practical patterns for agent orchestration and compliance automation.",
       "actionable_insights": [
-        "Evaluate the specialized agent for general conditions as a potential template for compliance-focused workflows.",
-        "Assess the Magic Question evolution for improving customer interaction modules in banking and insurance agent pipelines.",
-        "Monitor Zelros/Earnix releases for further production-ready features applicable to client deployments."
+        "Investigate the specialized agent for general conditions as a potential compliance automation pattern.",
+        "Evaluate the Magic Question evolution for improving customer interaction flows in insurance sales.",
+        "Assess Zelros' approach for integration into existing agentic pipelines or as a reference for new deployments."
       ],
       "category": "tools",
       "domain": "insurance",
@@ -282,11 +298,11 @@
       "source": "Zelros",
       "relevance_score": 7,
       "reason": "The Earnix-Zelros merger signals increased agentic AI adoption in insurance and banking, with potential new implementation patterns and client-ready use cases.",
-      "summary": "Earnix's acquisition of Zelros expands their AI platform capabilities for banks and insurers, focusing on predictive, generative, and agentic AI for hyper-personalized customer journeys. This could lead to new end-to-end decision-making workflows, including risk assessment and customer engagement, relevant for consultants building agentic pipelines. The announcement hints at practical, production-level deployments and integration patterns that may inform future projects.",
+      "summary": "Earnix's acquisition of Zelros expands their AI platform capabilities for banks and insurers, focusing on predictive, generative, and agentic AI for hyper-personalized customer journeys. The combined offering may introduce new end-to-end decision-making workflows, including risk assessment and customer engagement, relevant for consultants building agentic pipelines. While the article lacks technical depth, it hints at practical deployment patterns and business outcomes in insurance and finance.",
       "actionable_insights": [
-        "Monitor Earnix-Zelros for new agentic AI deployment patterns in insurance and banking.",
-        "Evaluate their end-to-end decision-making workflows for potential reuse in client projects.",
-        "Reach out to Earnix/Zelros for case studies or technical integration details relevant to Azure and LangGraph."
+        "Monitor Earnix-Zelros product updates for new agentic workflow features applicable to insurance sales and risk assessment.",
+        "Evaluate potential integration patterns or client use cases leveraging their combined platform for hyper-personalized customer journeys.",
+        "Reach out to Earnix/Zelros for case studies or technical documentation on production deployments in insurance and banking."
       ],
       "category": "industry",
       "domain": "insurance",
@@ -297,12 +313,12 @@
       "url": "https://www.zelros.com/2025/04/22/4-ways-to-leverage-ai-in-your-banking-and-insurance-distribution-process/",
       "source": "Zelros",
       "relevance_score": 7,
-      "reason": "The article discusses agentic AI applications in banking and insurance distribution, directly relevant to current client domains and implementation focus.",
-      "summary": "This article outlines four practical ways AI, specifically agentic systems, can be leveraged in banking and insurance distribution processes. It highlights potential use cases such as automated decision-making, lead scoring, and policy recommendations, which align with the consultant's focus on agentic workflows and enterprise deployments. While the excerpt lacks technical depth, the topic is highly relevant for client conversations and solution ideation.",
+      "reason": "The article discusses agentic AI applications in banking and insurance distribution, directly relevant to current client domains and agentic workflow interests.",
+      "summary": "This piece outlines four practical ways AI, specifically agentic systems, can be integrated into banking and insurance distribution processes. While it lacks deep technical detail or measured outcomes, it highlights actionable use cases such as automated lead scoring, policy recommendations, and claims pre-screening. The focus on agentic workflows aligns with the consultant's expertise and client needs in finance and insurance.",
       "actionable_insights": [
-        "Identify agentic AI use cases in insurance sales and banking distribution for pilot projects.",
-        "Map current workflows to potential agentic automation opportunities (e.g., lead scoring, claims pre-screening).",
-        "Engage clients with examples of agentic AI to drive digital transformation discussions."
+        "Review and benchmark agentic AI use cases for lead scoring and policy recommendation in insurance sales.",
+        "Identify gaps in current client workflows where agentic AI could reduce manual intervention.",
+        "Use the article as a conversation starter with clients about agentic AI adoption in distribution processes."
       ],
       "category": "industry",
       "domain": "finance",
@@ -314,11 +330,11 @@
       "source": "InsurTech Insights",
       "relevance_score": 7,
       "reason": "This article highlights a real-world InsurTech deployment leveraging telematics for motor insurance, relevant for consultants expanding into insurance and seeking production use cases.",
-      "summary": "DICEUS and Kruzr have integrated smartphone telematics and driver-safety analytics into the DICEUS insurance platform, enabling insurers to utilize real-world driving data for policy decisions. This partnership demonstrates how connected insurance solutions can drive operational improvements and new product offerings. The article provides a concrete example of digital transformation in insurance, though it lacks technical depth on architecture or measured outcomes.",
+      "summary": "DICEUS is integrating Kruzr's smartphone-based telematics and driver safety features into its insurance platform, enabling insurers to utilize real-world driving data for policy decisions. This partnership demonstrates a concrete application of AI and connected data in insurance, with potential implications for risk assessment and personalized policy offerings. Consultants can draw lessons from the integration approach and the operational outcomes for insurers.",
       "actionable_insights": [
-        "Investigate telematics integration patterns for insurance agent workflows.",
-        "Assess potential for similar driver-behavior analytics in client insurance projects.",
-        "Reach out to DICEUS or Kruzr for technical case studies or architecture details."
+        "Investigate how telematics data is integrated into insurance platforms for risk scoring and policy personalization.",
+        "Assess potential for similar agentic workflows or RAG pipelines to process and evaluate real-world driving data.",
+        "Use this deployment as a reference case when pitching AI-driven insurance solutions to clients, especially in motor insurance."
       ],
       "category": "industry",
       "domain": "insurance",
@@ -330,27 +346,27 @@
       "source": "Accenture Insurance Blog",
       "relevance_score": 7,
       "reason": "The article discusses agentic AI applications in health insurance claims, a domain the consultant is expanding into, with potential for workflow automation and operational improvement.",
-      "summary": "This article highlights how agentic AI is being used to streamline health insurance claims processing, reducing delays and improving patient outcomes. It describes practical scenarios where AI agents automate claim triage, accelerate diagnosis, and optimize resource allocation. While the excerpt lacks technical depth, it signals real-world adoption and operational benefits relevant to insurance workflows.",
+      "summary": "This article highlights how agentic AI is being used to streamline health insurance claims processing, reducing delays and improving patient outcomes. It describes practical impacts such as faster diagnosis, fewer unnecessary procedures, and improved operational efficiency for insurers. While the excerpt lacks technical depth, it signals real-world adoption and measurable benefits in insurance workflows.",
       "actionable_insights": [
-        "Investigate agentic AI patterns for automating claims triage and pre-screening in health insurance.",
-        "Assess potential integration points for agentic workflows within existing insurance claims systems.",
-        "Benchmark operational improvements (e.g., reduced processing times) for client pitches in insurance sales."
+        "Investigate agentic AI workflow patterns for claims pre-screening and triage in health insurance.",
+        "Assess potential integration points for agentic AI in existing insurance client pipelines to reduce operational delays.",
+        "Use case as a reference for pitching agentic AI solutions to new insurance clients, focusing on measurable outcomes."
       ],
       "category": "industry",
       "domain": "insurance",
       "worth_reading": true
     },
     {
-      "title": "Viewpoint: Agentic AI Is Coming to Insurance Industry – Much Faster Than You Think - Insurance Journal",
-      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1ud29Wc2xTUkJ2V2lYWWk0MGxMWEdkZ21WX21KaFhFcnNMNXhrcTZIR2ZGS29pWWJ0S0QyZzQ0aGpGdjRLcFVycGVxQnNQMnpKb0gxZnJiTTF5dmN0Z3NmaVlHVWkyQ2RHaGZNcGZqMEw2dVBOZkFF?oc=5",
+      "title": "Samsung Life launches AI training program for financial consultants - 헤럴드경제",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE9PX2JidEE5ZEVGRFBxRmFUWXVKS2hSdGhpaTJWZm5lTm9OU0ZiZmwtaTJ6Z2YxaXpjampvUjRzajdGdUw1aGhoaHdlanU5b0Z3cVFRRTBR?oc=5",
       "source": "Google News — AI Insurance",
       "relevance_score": 7,
-      "reason": "The article highlights the rapid adoption of agentic AI in insurance, aligning with the consultant's focus on industry-specific GenAI workflows and client expansion into insurance.",
-      "summary": "This viewpoint discusses how agentic AI is accelerating digital transformation in the insurance sector, with emphasis on workflow automation and decision support. It outlines emerging use cases such as claims pre-screening, policy recommendation, and agent copilots, which are directly relevant to enterprise implementations. While lacking deep technical details, it signals actionable trends and client expectations for agentic systems in insurance.",
+      "reason": "This article highlights a real-world AI adoption case in insurance sales, relevant for benchmarking agentic workflows and client outcomes.",
+      "summary": "Samsung Life's launch of an AI training program for financial consultants demonstrates practical AI integration in insurance sales, focusing on upskilling agents for improved client engagement and operational efficiency. While details on technical architecture or measured outcomes are limited, the initiative signals industry movement toward AI-powered agent support. The consultant can use this as a reference point for client conversations and solution design in insurance sales enablement.",
       "actionable_insights": [
-        "Identify insurance clients interested in agentic AI for claims and sales workflows.",
-        "Benchmark current agentic pipeline offerings against emerging industry use cases.",
-        "Prepare client-facing materials highlighting agentic AI benefits in insurance operations."
+        "Benchmark Samsung Life's approach to AI-driven agent training for insurance sales against current client projects.",
+        "Investigate potential for similar AI training modules or agent copilots in German insurance firms, focusing on measurable sales outcomes.",
+        "Use this case to support business cases for AI adoption in insurance sales enablement and agent productivity."
       ],
       "category": "industry",
       "domain": "insurance",
@@ -361,12 +377,12 @@
       "url": "https://www.kdnuggets.com/the-local-ai-stack-for-productive-slms",
       "source": "KDnuggets",
       "relevance_score": 7,
-      "reason": "The article offers a practical framework for assembling local AI stacks, which can inform architecture decisions for enterprise GenAI deployments.",
-      "summary": "This piece outlines how to select and integrate tools across the local AI stack, including model serving and context retrieval, with a focus on productivity and modularity. While not specific to finance, insurance, or HR, the framework can help optimize agentic workflows and RAG pipelines for enterprise use. It provides actionable guidance for consultants designing robust, scalable AI systems on-premises or in hybrid environments.",
+      "reason": "The article offers a practical framework for assembling local AI stacks, which can inform architecture decisions for enterprise GenAI deployments, though it lacks direct finance or insurance production case studies.",
+      "summary": "This piece outlines how to select and integrate tools for local AI stack layers, including model serving and context retrieval, with a focus on productivity and modularity. It provides actionable guidance for building agentic and RAG systems, relevant to the consultant's work in enterprise environments. However, it does not include sector-specific examples or measured outcomes in finance, insurance, or HR.",
       "actionable_insights": [
-        "Review and benchmark recommended tools for model serving and retrieval to improve current RAG and agentic workflows.",
-        "Apply the framework to evaluate gaps or redundancies in your existing Azure-based AI stack.",
-        "Use the article's checklist to guide architecture decisions for new client projects requiring local or hybrid AI deployments."
+        "Review and benchmark recommended tools for local model serving and retrieval to optimize current RAG pipelines.",
+        "Apply the framework to evaluate build vs buy decisions for new agentic workflow components.",
+        "Use the stack layering approach to improve modularity and maintainability in Azure-based GenAI deployments."
       ],
       "category": "implementation",
       "domain": "general",
@@ -377,12 +393,12 @@
       "url": "https://www.kdnuggets.com/10-rules-for-getting-better-results-from-ai-coding-agents",
       "source": "KDnuggets",
       "relevance_score": 7,
-      "reason": "The article offers practical guidelines for improving AI coding agent outcomes, which can inform agentic workflow design and deployment for enterprise projects.",
-      "summary": "This article outlines ten actionable strategies to enhance the effectiveness of AI coding agents, focusing on prompt engineering, workflow integration, and error handling. While not specific to finance, insurance, or HR, the rules are broadly applicable to agentic systems and can help optimize the consultant's multi-agent pipelines. The advice is practical and can be adapted to their current tech stack and client projects.",
+      "reason": "The article offers practical guidelines for improving AI coding agent outcomes, which can inform agentic workflow design and deployment.",
+      "summary": "This article outlines ten actionable strategies for optimizing AI coding agents, focusing on prompt engineering, workflow integration, and error handling. While not specific to finance, insurance, or HR, the rules are applicable to enterprise agentic systems and can help improve reliability and productivity. The advice is relevant for consultants building multi-agent pipelines and RAG systems, especially when customizing agents for client use cases.",
       "actionable_insights": [
-        "Review and refine prompt structures for coding agents to improve reliability and output quality.",
-        "Integrate robust error handling and fallback mechanisms in agent workflows to minimize disruptions.",
-        "Apply workflow orchestration best practices to streamline agent collaboration and task assignment."
+        "Review and refine prompt engineering practices for coding agents in your workflows.",
+        "Implement robust error handling and monitoring to improve agent reliability.",
+        "Integrate agent feedback loops to continuously enhance performance in production environments."
       ],
       "category": "implementation",
       "domain": "general",
@@ -394,13 +410,13 @@
       "source": "Towards Data Science",
       "relevance_score": 7,
       "reason": "The article provides practical guidance on orchestrating multiple specialist agents, which is directly relevant to building agentic workflows and multi-agent pipelines for enterprise clients.",
-      "summary": "This hands-on guide explains how to define and coordinate subagents within the Codex CLI, offering actionable patterns for agent orchestration. While Codex is not part of the consultant's current tech stack, the concepts are transferable to LangGraph and Azure OpenAI implementations. The focus on agent teamwork aligns with enterprise needs for scalable, modular AI workflows.",
+      "summary": "This hands-on guide explores how to define and coordinate specialist agents using the Codex CLI, offering actionable patterns for agent orchestration. While Codex is not part of the consultant's current tech stack, the concepts are transferable to LangGraph and Azure OpenAI implementations. The article focuses on practical coordination strategies that can inform the design of robust multi-agent systems for enterprise use cases.",
       "actionable_insights": [
-        "Adapt subagent coordination patterns to LangGraph or Azure OpenAI agentic workflows.",
-        "Evaluate the Codex CLI's approach for potential integration or inspiration in multi-agent pipeline design.",
-        "Use the guide's step-by-step examples to refine internal agent orchestration strategies."
+        "Adapt agent coordination patterns from Codex CLI to LangGraph or Azure OpenAI workflows.",
+        "Evaluate the benefits of specialist subagents for complex enterprise tasks such as RAG or HR analytics.",
+        "Use the guide as inspiration for designing modular agent pipelines in client projects."
       ],
-      "category": "tutorial",
+      "category": "implementation",
       "domain": "general",
       "worth_reading": true
     },
@@ -410,11 +426,11 @@
       "source": "InfoQ AI/ML",
       "relevance_score": 7,
       "reason": "The article offers practical insights into integrating LLMs like Claude for incident response, which is relevant for enterprise AI reliability and observability, but lacks direct finance, insurance, or HR deployment examples.",
-      "summary": "Alex Palcuie discusses how LLMs can enhance incident response by automating log and trace analysis, highlighting both strengths and current limitations in root-cause analysis. The presentation provides actionable guidance for engineering leaders on safely integrating AI into on-call workflows. While not domain-specific, the lessons are applicable to improving reliability and observability in agentic and RAG-based enterprise systems.",
+      "summary": "Alex Palcuie discusses how LLMs can enhance incident response by automating log and trace analysis, highlighting both their strengths and current limitations in root-cause analysis. The presentation provides actionable guidance for engineering leaders on safely integrating AI into on-call workflows. While not domain-specific, the lessons are applicable to improving reliability and observability in agentic and RAG-based enterprise systems.",
       "actionable_insights": [
-        "Evaluate LLMs for automated log and trace analysis in production AI workflows.",
-        "Design incident response processes that leverage AI without diminishing human expertise.",
-        "Assess current LLM limitations in causation analysis to inform observability tooling choices."
+        "Evaluate LLMs for automated log and trace analysis in production pipelines to improve incident detection.",
+        "Design incident response workflows that leverage AI without diminishing human expertise or oversight.",
+        "Assess current limitations of LLMs in causation analysis to inform risk mitigation strategies in enterprise deployments."
       ],
       "category": "implementation",
       "domain": "general",
@@ -425,12 +441,12 @@
       "url": "https://aibusiness.com/cybersecurity/openai-report-explains-hugging-face-attack-detail",
       "source": "AI Business",
       "relevance_score": 7,
-      "reason": "The article details a real-world security incident involving AI agents, highlighting risks relevant to enterprise deployments.",
-      "summary": "OpenAI's report on the Hugging Face attack provides a technical breakdown of vulnerabilities in AI agent workflows, emphasizing the importance of robust security practices. The incident underscores the need for secure orchestration and monitoring in agentic pipelines, especially when integrating third-party tools. Consultants working with enterprise clients should review their own agent security and incident response strategies in light of these findings.",
+      "reason": "The article details a real-world security incident involving AI agents, highlighting risks relevant to enterprise GenAI deployments.",
+      "summary": "OpenAI's report on the Hugging Face attack provides specifics on how AI agent workflows can be compromised, underscoring the importance of robust security in agentic and RAG systems. The findings are directly relevant for consultants building multi-agent pipelines, especially in regulated industries like finance and insurance. Understanding these vulnerabilities can inform architecture decisions and compliance strategies.",
       "actionable_insights": [
-        "Review and update security protocols for agentic workflows, especially those using third-party integrations.",
-        "Implement enhanced monitoring and logging for AI agent pipelines to detect anomalous behavior.",
-        "Conduct a security audit of current RAG and multi-agent architectures to identify potential vulnerabilities."
+        "Review and update security protocols for agentic workflows and RAG pipelines, especially those exposed to external APIs.",
+        "Integrate threat modeling and penetration testing into GenAI deployment processes for enterprise clients.",
+        "Prepare client-facing guidance on AI agent security, referencing lessons from the Hugging Face incident."
       ],
       "category": "implementation",
       "domain": "general",
